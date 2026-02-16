@@ -3,7 +3,9 @@
  * Handles token management and authentication state
  */
 
-const TOKEN_KEY = 'accessToken';
+import { env } from '@/config/env';
+
+const TOKEN_KEY = env.auth.tokenKey;
 
 /**
  * Save access token to localStorage

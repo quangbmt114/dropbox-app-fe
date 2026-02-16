@@ -2,7 +2,8 @@
  * Authentication API Module
  */
 
-import { apiClient, ApiResponse } from '../client';
+import { apiClient } from '../../client';
+import type { ApiResponse } from '../../client';
 
 export interface LoginRequest {
   email: string;
@@ -52,4 +53,3 @@ export const authApi = {
   checkHealth: (): Promise<ApiResponse<{ status: string; timestamp?: string }>> =>
     apiClient.get('/health'),
 };
-

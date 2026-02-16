@@ -1,11 +1,15 @@
 /**
- * API Client Configuration
- * Core API client with automatic token injection
+ * API Client - Singleton Pattern with Axios
+ * 
+ * Centralized API client for all HTTP requests
+ * Uses axios with automatic token injection
  */
 
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getToken } from '@/utils/auth';
+import { env } from '@/config/env';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = env.api.baseUrl;
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -14,83 +18,162 @@ export interface ApiResponse<T = any> {
 }
 
 /**
- * Generic API request handler with automatic token injection
+ * API Client Singleton Class
  */
-async function apiRequest<T = any>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
-  const url = `${API_BASE_URL}${endpoint}`;
+class ApiClient {
+  private static instance: ApiClient;
+  private axiosInstance: AxiosInstance;
 
-  // Get token and add to headers if available
-  const token = getToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  // Merge with existing headers
-  if (options.headers) {
-    const existingHeaders = new Headers(options.headers);
-    existingHeaders.forEach((value, key) => {
-      headers[key] = value;
-    });
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
+  private constructor() {
+    // Create axios instance with default config
+    this.axiosInstance = axios.create({
+      baseURL: API_BASE_URL,
+      timeout: env.api.timeout,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    const data = await response.json().catch(() => null);
+    // Request interceptor: Add token to all requests
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        const token = getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
 
-    if (!response.ok) {
-      return {
-        status: response.status,
-        error: data?.message || data?.error || `HTTP Error ${response.status}`,
-      };
+    // Response interceptor: Handle errors globally
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // You can handle global errors here (e.g., 401 redirect)
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Get singleton instance
+   */
+  public static getInstance(): ApiClient {
+    if (!ApiClient.instance) {
+      ApiClient.instance = new ApiClient();
     }
+    return ApiClient.instance;
+  }
 
-    return {
-      status: response.status,
-      data,
-    };
-  } catch (error) {
-    return {
-      status: 0,
-      error: error instanceof Error ? error.message : 'Unknown error occurred',
-    };
+  /**
+   * Generic request handler
+   */
+  private async request<T = any>(
+    config: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    try {
+      const response: AxiosResponse<T> = await this.axiosInstance.request(config);
+      return {
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      if (error.response) {
+        // Server responded with error
+        return {
+          status: error.response.status,
+          error: error.response.data?.message || error.response.data?.error || error.message,
+        };
+      } else if (error.request) {
+        // Request made but no response
+        return {
+          status: 0,
+          error: 'No response from server',
+        };
+      } else {
+        // Something else happened
+        return {
+          status: 0,
+          error: error.message || 'Unknown error occurred',
+        };
+      }
+    }
+  }
+
+  /**
+   * GET request
+   */
+  public async get<T = any>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>({ ...config, method: 'GET', url });
+  }
+
+  /**
+   * POST request
+   */
+  public async post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>({ ...config, method: 'POST', url, data });
+  }
+
+  /**
+   * PUT request
+   */
+  public async put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>({ ...config, method: 'PUT', url, data });
+  }
+
+  /**
+   * DELETE request
+   */
+  public async delete<T = any>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>({ ...config, method: 'DELETE', url });
+  }
+
+  /**
+   * Upload file with multipart/form-data
+   */
+  public async upload<T = any>(
+    url: string,
+    formData: FormData,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>({
+      ...config,
+      method: 'POST',
+      url,
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
+
+  /**
+   * Get axios instance (for advanced usage)
+   */
+  public getAxiosInstance(): AxiosInstance {
+    return this.axiosInstance;
   }
 }
 
-/**
- * HTTP Methods
- */
-export const apiClient = {
-  get: <T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> =>
-    apiRequest<T>(endpoint, { ...options, method: 'GET' }),
+// Export singleton instance
+export const apiClient = ApiClient.getInstance();
 
-  post: <T = any>(endpoint: string, body?: any, options: RequestInit = {}): Promise<ApiResponse<T>> =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
-    }),
-
-  put: <T = any>(endpoint: string, body?: any, options: RequestInit = {}): Promise<ApiResponse<T>> =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: 'PUT',
-      body: body ? JSON.stringify(body) : undefined,
-    }),
-
-  del: <T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> =>
-    apiRequest<T>(endpoint, { ...options, method: 'DELETE' }),
-};
-
+// Export API base URL for reference
 export { API_BASE_URL };
-

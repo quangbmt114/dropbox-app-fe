@@ -2,8 +2,8 @@
  * Files API Module
  */
 
-import { apiClient, ApiResponse, API_BASE_URL } from '../client';
-import { getToken } from '@/utils/auth';
+import { apiClient } from '../../client';
+import type { ApiResponse } from '../../client';
 
 export interface FileItem {
   id: string;
@@ -25,44 +25,10 @@ export const filesApi = {
    * Upload file using multipart/form-data
    */
   upload: async (file: File): Promise<ApiResponse<UploadResponse>> => {
-    const url = `${API_BASE_URL}/files/upload`;
-    const token = getToken();
-
     const formData = new FormData();
     formData.append('file', file);
-
-    try {
-      const headers: Record<string, string> = {};
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        return {
-          status: response.status,
-          error: data?.message || data?.error || `HTTP Error ${response.status}`,
-        };
-      }
-
-      return {
-        status: response.status,
-        data,
-      };
-    } catch (error) {
-      return {
-        status: 0,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      };
-    }
+    
+    return apiClient.upload<UploadResponse>('/files/upload', formData);
   },
 
   /**
@@ -75,6 +41,5 @@ export const filesApi = {
    * Delete a file by ID
    */
   delete: (fileId: string): Promise<ApiResponse<void>> =>
-    apiClient.del<void>(`/files/${fileId}`),
+    apiClient.delete<void>(`/files/${fileId}`),
 };
-
