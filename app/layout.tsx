@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { StoreProvider } from '@/components/StoreProvider'
 
 export const metadata: Metadata = {
   title: 'Dropbox Clone',
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   )
 }
