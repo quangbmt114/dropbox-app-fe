@@ -21,7 +21,6 @@ import { FiGrid, FiList } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { authSelectors, authActions } from '@/store/modules/auth';
 import { filesSelectors, filesActions } from '@/store/modules/dashboard/files';
-import { isAuthenticated } from '@/utils/auth';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { FileUploadZone } from './components/FileUploadZone';
 import { FileListView } from './components/FileListView';
@@ -34,6 +33,8 @@ export const DashboardFeature = () => {
 
   // ========== STATE (theo docs/rules.MD) ==========
   const user = useAppSelector(authSelectors.selectUser);
+  const isAuthenticatedState = useAppSelector(authSelectors.selectIsAuthenticated);
+  const accessToken = useAppSelector(authSelectors.selectAccessToken);
   const files = useAppSelector(filesSelectors.selectFiles);
   const isLoadingFiles = useAppSelector(filesSelectors.selectIsLoading);
   const isUploading = useAppSelector(filesSelectors.selectIsUploading);
@@ -102,8 +103,9 @@ export const DashboardFeature = () => {
 
   // ========== EFFECTS ==========
   useEffect(() => {
-    // Check authentication
-    if (!isAuthenticated()) {
+    // Check authentication from Redux state
+    // This will work correctly after Redux Persist rehydrates
+    if (!isAuthenticatedState || !accessToken) {
       router.push('/login');
       return;
     }
@@ -121,7 +123,7 @@ export const DashboardFeature = () => {
     return () => {
       dispatch(filesActions.destroy());
     };
-  }, [dispatch, router]);
+  }, [isAuthenticatedState, accessToken, dispatch, router]);
 
   // Loading state
   if (isInitializing) {

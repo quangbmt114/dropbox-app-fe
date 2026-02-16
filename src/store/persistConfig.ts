@@ -34,8 +34,8 @@ export const authPersistConfig = {
   key: 'auth',
   storage,
   
-  // Only persist these keys from auth state
-  whitelist: ['user', 'isAuthenticated'],
+  // Persist user, token, and auth status
+  whitelist: ['user', 'accessToken', 'isAuthenticated'],
   
   // Don't persist loading states
   blacklist: ['loadingCount'],
@@ -98,17 +98,17 @@ export const migrations = {
  * Transform data before persisting
  */
 export const transforms = {
-  // Example: Remove sensitive data before persisting
+  // Transform: Remove loading states before persisting
   sanitizeBeforePersist: (inboundState: any, key: string) => {
     if (key === 'auth') {
-      // Don't persist token in state (it's in localStorage separately)
+      // Only persist user, token, and isAuthenticated
       const { loadingCount, ...sanitized } = inboundState;
       return sanitized;
     }
     return inboundState;
   },
   
-  // Example: Transform data after rehydrating
+  // Transform: Reset loading states after rehydrating
   enhanceAfterRehydrate: (outboundState: any, key: string) => {
     if (key === 'auth') {
       // Reset loading states on app start

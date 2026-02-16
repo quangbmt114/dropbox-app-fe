@@ -4,8 +4,8 @@
 
 import { actions as A } from '.';
 import { filesApi } from '@/api-service';
-import { removeToken } from '@/utils/auth';
 import type { AppDispatch } from '@/store';
+import { authActions } from '@/store/modules/auth';
 
 const init = () => {
   return async (dispatch: AppDispatch) => {
@@ -29,8 +29,8 @@ const fetchFiles = () => {
 
       if (response.error) {
         if (response.status === 401) {
-          // Unauthorized - logout
-          removeToken();
+          // Unauthorized - logout via Redux
+          dispatch(authActions.logout());
           window.location.href = '/login';
         }
         return { success: false, error: response.error };
@@ -62,7 +62,8 @@ const uploadFile = (file: File) => {
 
       if (response.error) {
         if (response.status === 401) {
-          removeToken();
+          // Unauthorized - logout via Redux
+          dispatch(authActions.logout());
           window.location.href = '/login';
         }
         return { success: false, error: response.error };
@@ -92,7 +93,8 @@ const deleteFile = (fileId: string) => {
 
       if (response.error) {
         if (response.status === 401) {
-          removeToken();
+          // Unauthorized - logout via Redux
+          dispatch(authActions.logout());
           window.location.href = '/login';
         }
         return { success: false, error: response.error };

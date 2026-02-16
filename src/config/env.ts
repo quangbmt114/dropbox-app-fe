@@ -10,6 +10,12 @@ export const env = {
     timeout: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '30000'),
   },
 
+  // Client Configuration
+  client: {
+    port: parseInt(process.env.NEXT_PUBLIC_CLIENT_PORT || '3000'),
+    host: process.env.NEXT_PUBLIC_CLIENT_HOST || 'localhost',
+  },
+
   // Authentication
   auth: {
     tokenKey: process.env.NEXT_PUBLIC_TOKEN_KEY || 'accessToken',

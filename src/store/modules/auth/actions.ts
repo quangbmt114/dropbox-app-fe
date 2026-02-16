@@ -1,10 +1,10 @@
 /**
  * Auth Store Actions
+ * Now using Redux persist to handle tokens instead of localStorage
  */
 
 import { actions as A } from '.';
-import { authApi } from '@/api-service';
-import { saveToken, removeToken } from '@/utils/auth';
+import { authApi, RegisterRequest } from '@/api-service';
 import type { AppDispatch } from '@/store';
 
 const login = (email: string, password: string) => {
@@ -18,17 +18,17 @@ const login = (email: string, password: string) => {
         return { success: false, error: response.error };
       }
 
-      if (response.data?.accessToken) {
-        saveToken(response.data.accessToken);
-
-        if (response.data.user) {
-          dispatch(A.setUser(response.data.user));
-        }
+      if (response.data?.accessToken && response.data.user) {
+        // Store token and user in Redux (will be persisted automatically)
+        dispatch(A.setAuth({
+          user: response.data.user,
+          token: response.data.accessToken,
+        }));
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token received' };
+      return { success: false, error: 'No token or user received' };
     } catch (error) {
       return {
         success: false,
@@ -40,28 +40,28 @@ const login = (email: string, password: string) => {
   };
 };
 
-const register = (email: string, password: string) => {
+const register = (data: RegisterRequest) => {
   return async (dispatch: AppDispatch) => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.register({ email, password });
+      const response = await authApi.register(data);
 
       if (response.error) {
         return { success: false, error: response.error };
       }
 
-      if (response.data?.accessToken) {
-        saveToken(response.data.accessToken);
-
-        if (response.data.user) {
-          dispatch(A.setUser(response.data.user));
-        }
+      if (response.data?.accessToken && response.data.user) {
+        // Store token and user in Redux (will be persisted automatically)
+        dispatch(A.setAuth({
+          user: response.data.user,
+          token: response.data.accessToken,
+        }));
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token received' };
+      return { success: false, error: 'No token or user received' };
     } catch (error) {
       return {
         success: false,
@@ -75,8 +75,8 @@ const register = (email: string, password: string) => {
 
 const logout = () => {
   return async (dispatch: AppDispatch) => {
-    removeToken();
-    dispatch(A.clearUser());
+    // Clear auth state (redux-persist will handle clearing persisted data)
+    dispatch(A.clearAuth());
   };
 };
 
@@ -89,9 +89,8 @@ const fetchCurrentUser = () => {
 
       if (response.error) {
         if (response.status === 401) {
-          // Unauthorized - clear user
-          dispatch(A.clearUser());
-          removeToken();
+          // Unauthorized - clear auth
+          dispatch(A.clearAuth());
         }
         return;
       }
@@ -113,4 +112,3 @@ export const extendActions = {
   logout,
   fetchCurrentUser,
 };
-

@@ -17,6 +17,7 @@ import storage from 'redux-persist/lib/storage'; // localStorage
 import { authReducer } from './modules/auth';
 import { filesReducer } from './modules/dashboard/files';
 import { env } from '@/config/env';
+import { initStoreReference } from './getToken';
 
 // Root reducer
 const rootReducer = combineReducers({
@@ -53,6 +54,9 @@ export const store = configureStore({
 
 // Create persistor
 export const persistor = persistStore(store);
+
+// Initialize store reference for getToken utility (to avoid circular dependency)
+initStoreReference(store);
 
 // Infer types from store
 export type RootState = ReturnType<typeof store.getState>;

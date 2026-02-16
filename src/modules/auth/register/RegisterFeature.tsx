@@ -49,7 +49,7 @@ export const RegisterFeature = () => {
   // ========== CALLBACKS ==========
   const onSubmit = useCallback(
     async (data: RegisterFormData) => {
-      const result = await dispatch(authActions.register(data.email, data.password));
+      const result = await dispatch(authActions.register({ name: data.name, email: data.email, password: data.password }));
 
       if (!result.success) {
         setError('root', {
