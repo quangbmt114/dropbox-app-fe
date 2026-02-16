@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { StoreProvider } from '@/components/StoreProvider'
+import { ChakraProvider } from '@/providers/ChakraProvider'
 
 export const metadata: Metadata = {
   title: 'Dropbox Clone',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>{children}</StoreProvider>
+        <ChakraProvider>
+          <StoreProvider>{children}</StoreProvider>
+        </ChakraProvider>
       </body>
     </html>
   )

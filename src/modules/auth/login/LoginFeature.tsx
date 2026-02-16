@@ -2,62 +2,74 @@
 
 /**
  * Login Feature Module
- * Handles login logic with Redux
+ * Handles login logic with Redux and react-hook-form
  */
 
-import { useState, useCallback, useEffect, FormEvent } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { authActions, authSelectors } from '@/store/modules/auth';
 import { LoginForm } from './components/LoginForm';
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 export const LoginFeature = () => {
-    const router = useRouter();
-    const dispatch = useAppDispatch();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
-    // ========== STATE ==========
-    const isLoading = useAppSelector(authSelectors.selectIsLoading);
-    const isAuthenticated = useAppSelector(authSelectors.selectIsAuthenticated);
+  // ========== STATE ==========
+  const isLoading = useAppSelector(authSelectors.selectIsLoading);
+  const isAuthenticated = useAppSelector(authSelectors.selectIsAuthenticated);
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+  // ========== REACT HOOK FORM ==========
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<LoginFormData>({
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-    // ========== CALLBACKS ==========
-    const handleSubmit = useCallback(
-        async (e: FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            setError('');
+  // ========== CALLBACKS ==========
+  const onSubmit = useCallback(
+    async (data: LoginFormData) => {
+      const result = await dispatch(authActions.login(data.email, data.password));
 
-            const result = await dispatch(authActions.login(email, password));
+      if (!result.success) {
+        setError('root', {
+          type: 'manual',
+          message: result.error || 'Login failed',
+        });
+        return;
+      }
 
-            if (!result.success) {
-                setError(result.error || 'Login failed');
-                return;
-            }
+      router.push('/dashboard');
+    },
+    [dispatch, router, setError]
+  );
 
-            router.push('/dashboard');
-        },
-        [email, password, dispatch, router]
-    );
+  // ========== EFFECTS ==========
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
-    // ========== EFFECTS ==========
-    useEffect(() => {
-        if (isAuthenticated) {
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, router]);
-
-    return (
-        <LoginForm
-            email={email}
-            password={password}
-            error={error}
-            isLoading={isLoading}
-            onEmailChange={setEmail}
-            onPasswordChange={setPassword}
-            onSubmit={handleSubmit}
-        />
-    );
+  return (
+    <LoginForm
+      register={register}
+      handleSubmit={handleSubmit(onSubmit)}
+      errors={errors}
+      isLoading={isLoading}
+    />
+  );
 };
-

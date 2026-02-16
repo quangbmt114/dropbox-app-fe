@@ -2,14 +2,22 @@
 
 /**
  * Register Feature Module
- * Handles registration logic with Redux
+ * Handles registration logic with Redux and react-hook-form
  */
 
-import { useState, useCallback, useEffect, FormEvent } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { authActions, authSelectors } from '@/store/modules/auth';
 import { RegisterForm } from './components/RegisterForm';
+
+interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export const RegisterFeature = () => {
   const router = useRouter();
@@ -19,39 +27,41 @@ export const RegisterFeature = () => {
   const isLoading = useAppSelector(authSelectors.selectIsLoading);
   const isAuthenticated = useAppSelector(authSelectors.selectIsAuthenticated);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  // ========== REACT HOOK FORM ==========
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    setError,
+  } = useForm<RegisterFormData>({
+    mode: 'onBlur',
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  const password = watch('password');
 
   // ========== CALLBACKS ==========
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setError('');
-
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-
-      // Validate password length
-      if (password.length < 6) {
-        setError('Password must be at least 6 characters');
-        return;
-      }
-
-      const result = await dispatch(authActions.register(email, password));
+  const onSubmit = useCallback(
+    async (data: RegisterFormData) => {
+      const result = await dispatch(authActions.register(data.email, data.password));
 
       if (!result.success) {
-        setError(result.error || 'Registration failed');
+        setError('root', {
+          type: 'manual',
+          message: result.error || 'Registration failed',
+        });
         return;
       }
 
       router.push('/dashboard');
     },
-    [email, password, confirmPassword, dispatch, router]
+    [dispatch, router, setError]
   );
 
   // ========== EFFECTS ==========
@@ -63,16 +73,11 @@ export const RegisterFeature = () => {
 
   return (
     <RegisterForm
-      email={email}
-      password={password}
-      confirmPassword={confirmPassword}
-      error={error}
+      register={register}
+      handleSubmit={handleSubmit(onSubmit)}
+      errors={errors}
       isLoading={isLoading}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
-      onConfirmPasswordChange={setConfirmPassword}
-      onSubmit={handleSubmit}
+      password={password}
     />
   );
 };
-

@@ -2,21 +2,35 @@
 
 /**
  * Dashboard Feature Module
- * Main dashboard component with Redux integration
+ * Main dashboard component with Redux integration and Chakra UI
  */
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Box,
+  Heading,
+  HStack,
+  IconButton,
+  Tooltip,
+  useToast,
+  Spinner,
+  Center,
+} from '@chakra-ui/react';
+import { FiGrid, FiList } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { authSelectors, authActions } from '@/store/modules/auth';
 import { filesSelectors, filesActions } from '@/store/modules/dashboard/files';
 import { isAuthenticated } from '@/utils/auth';
-import { FileUpload } from './components/FileUpload';
-import { FileList } from './components/FileList';
+import { DashboardLayout } from '@/components/DashboardLayout';
+import { FileUploadZone } from './components/FileUploadZone';
+import { FileListView } from './components/FileListView';
+import { FileGridView } from './components/FileGridView';
 
 export const DashboardFeature = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const toast = useToast();
 
   // ========== STATE (theo docs/rules.MD) ==========
   const user = useAppSelector(authSelectors.selectUser);
@@ -26,7 +40,7 @@ export const DashboardFeature = () => {
   const deletingFileId = useAppSelector(filesSelectors.selectDeletingFileId);
 
   const [isInitializing, setIsInitializing] = useState(true);
-  const [uploadError, setUploadError] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // ========== CALLBACKS ==========
   const handleLogout = useCallback(() => {
@@ -35,26 +49,55 @@ export const DashboardFeature = () => {
   }, [dispatch, router]);
 
   const handleUpload = useCallback(
-    async (file: File) => {
-      setUploadError('');
-      const result = await dispatch(filesActions.uploadFile(file));
+    async (files: File[]) => {
+      for (const file of files) {
+        const result = await dispatch(filesActions.uploadFile(file));
 
-      if (!result.success) {
-        setUploadError(result.error || 'Upload failed');
+        if (result.success) {
+          toast({
+            title: 'File uploaded',
+            description: `${file.name} uploaded successfully`,
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: 'Upload failed',
+            description: result.error || 'Failed to upload file',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
       }
     },
-    [dispatch]
+    [dispatch, toast]
   );
 
   const handleDelete = useCallback(
-    async (fileId: string) => {
+    async (fileId: string, fileName: string) => {
       const result = await dispatch(filesActions.deleteFile(fileId));
 
-      if (!result.success) {
-        alert(`Failed to delete file: ${result.error}`);
+      if (result.success) {
+        toast({
+          title: 'File deleted',
+          description: `${fileName} deleted successfully`,
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Delete failed',
+          description: result.error || 'Failed to delete file',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
       }
     },
-    [dispatch]
+    [dispatch, toast]
   );
 
   // ========== EFFECTS ==========
@@ -83,82 +126,67 @@ export const DashboardFeature = () => {
   // Loading state
   if (isInitializing) {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem' }}>
-        <p>Loading...</p>
-      </div>
+      <Center h="100vh" bg="gray.50">
+        <Spinner size="xl" color="brand.500" thickness="4px" />
+      </Center>
     );
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#f5f5f5',
-        fontFamily: 'system-ui, sans-serif',
-      }}
+    <DashboardLayout
+      userEmail={user?.email || ''}
+      onLogout={handleLogout}
     >
-      <header
-        style={{
-          background: 'white',
-          borderBottom: '1px solid #ddd',
-          padding: '1rem 2rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#f44',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontWeight: '500',
-          }}
-        >
-          Logout
-        </button>
-      </header>
+      <Box>
+        {/* Header */}
+        <HStack justify="space-between" mb={6}>
+          <Heading size="lg">All Files</Heading>
+          <HStack spacing={2}>
+            <Tooltip label="Grid view">
+              <IconButton
+                aria-label="Grid view"
+                icon={<FiGrid />}
+                variant={viewMode === 'grid' ? 'solid' : 'ghost'}
+                colorScheme={viewMode === 'grid' ? 'brand' : 'gray'}
+                onClick={() => setViewMode('grid')}
+              />
+            </Tooltip>
+            <Tooltip label="List view">
+              <IconButton
+                aria-label="List view"
+                icon={<FiList />}
+                variant={viewMode === 'list' ? 'solid' : 'ghost'}
+                colorScheme={viewMode === 'list' ? 'brand' : 'gray'}
+                onClick={() => setViewMode('list')}
+              />
+            </Tooltip>
+          </HStack>
+        </HStack>
 
-      <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        {/* User Info */}
-        <div
-          style={{
-            background: 'white',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            marginBottom: '2rem',
-          }}
-        >
-          <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>Welcome!</h2>
-          {user && (
-            <p style={{ margin: '0.25rem 0', color: '#666' }}>
-              <strong>Email:</strong> {user.email}
-            </p>
-          )}
-        </div>
-
-        {/* File Upload */}
-        <FileUpload
+        {/* Upload Zone */}
+        <FileUploadZone
           onUpload={handleUpload}
           isUploading={isUploading}
-          error={uploadError}
+          mb={6}
         />
 
-        {/* Files List */}
-        <FileList
-          files={files}
-          isLoading={isLoadingFiles}
-          deletingFileId={deletingFileId}
-          onDelete={handleDelete}
-        />
-      </main>
-    </div>
+        {/* Files Display */}
+        {viewMode === 'grid' ? (
+          <FileGridView
+            files={files}
+            isLoading={isLoadingFiles}
+            deletingFileId={deletingFileId}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <FileListView
+            files={files}
+            isLoading={isLoadingFiles}
+            deletingFileId={deletingFileId}
+            onDelete={handleDelete}
+          />
+        )}
+      </Box>
+    </DashboardLayout>
   );
 };
-
