@@ -3,9 +3,28 @@
  * Now using Redux persist to handle tokens instead of localStorage
  */
 
-import { actions as A } from '.';
-import { authApi, RegisterRequest } from '@/api-service';
-import type { AppDispatch } from '@/store';
+import { actions as A } from ".";
+import { authApi, RegisterRequest } from "@/api-service";
+import type { AppDispatch } from "@/store";
+
+/**
+ * Initialize Auth
+ * Check và fetch current user nếu có token
+ */
+const initAuth = () => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await dispatch(fetchCurrentUser());
+      return { success: true, data: result };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to initialize auth",
+      };
+    }
+  };
+};
 
 const login = (email: string, password: string) => {
   return async (dispatch: AppDispatch) => {
@@ -19,20 +38,21 @@ const login = (email: string, password: string) => {
       }
 
       if (response.data?.accessToken && response.data.user) {
-        // Store token and user in Redux (will be persisted automatically)
-        dispatch(A.setAuth({
-          user: response.data.user,
-          token: response.data.accessToken,
-        }));
+        dispatch(
+          A.setAuth({
+            user: response.data.user,
+            token: response.data.accessToken,
+          }),
+        );
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token or user received' };
+      return { success: false, error: "No token or user received" };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Login failed',
+        error: error instanceof Error ? error.message : "Login failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -53,19 +73,21 @@ const register = (data: RegisterRequest) => {
 
       if (response.data?.accessToken && response.data.user) {
         // Store token and user in Redux (will be persisted automatically)
-        dispatch(A.setAuth({
-          user: response.data.user,
-          token: response.data.accessToken,
-        }));
+        dispatch(
+          A.setAuth({
+            user: response.data.user,
+            token: response.data.accessToken,
+          }),
+        );
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token or user received' };
+      return { success: false, error: "No token or user received" };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Registration failed',
+        error: error instanceof Error ? error.message : "Registration failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -75,7 +97,6 @@ const register = (data: RegisterRequest) => {
 
 const logout = () => {
   return async (dispatch: AppDispatch) => {
-    // Clear auth state (redux-persist will handle clearing persisted data)
     dispatch(A.clearAuth());
   };
 };
@@ -87,19 +108,11 @@ const fetchCurrentUser = () => {
 
       const response = await authApi.getCurrentUser();
 
-      if (response.error) {
-        if (response.status === 401) {
-          // Unauthorized - clear auth
-          dispatch(A.clearAuth());
-        }
-        return;
-      }
-
       if (response.data) {
         dispatch(A.setUser(response.data));
       }
     } catch (error) {
-      console.error('Failed to fetch user', error);
+      console.error("Failed to fetch user", error);
     } finally {
       dispatch(A.popLoading());
     }
@@ -107,6 +120,7 @@ const fetchCurrentUser = () => {
 };
 
 export const extendActions = {
+  initAuth,
   login,
   register,
   logout,

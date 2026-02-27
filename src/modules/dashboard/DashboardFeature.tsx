@@ -19,8 +19,11 @@ import {
 } from '@chakra-ui/react';
 import { FiGrid, FiList } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { store } from '@/store';
 import { authSelectors, authActions } from '@/store/modules/auth';
 import { filesSelectors, filesActions } from '@/store/modules/dashboard/files';
+import { dashboardActions } from '@/store/modules/dashboard/actions';
+import { isAuthenticated } from '@/utils/auth';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { FileUploadZone } from './components/FileUploadZone';
 import { FileListView } from './components/FileListView';
@@ -31,10 +34,7 @@ export const DashboardFeature = () => {
   const dispatch = useAppDispatch();
   const toast = useToast();
 
-  // ========== STATE (theo docs/rules.MD) ==========
   const user = useAppSelector(authSelectors.selectUser);
-  const isAuthenticatedState = useAppSelector(authSelectors.selectIsAuthenticated);
-  const accessToken = useAppSelector(authSelectors.selectAccessToken);
   const files = useAppSelector(filesSelectors.selectFiles);
   const isLoadingFiles = useAppSelector(filesSelectors.selectIsLoading);
   const isUploading = useAppSelector(filesSelectors.selectIsUploading);
@@ -47,7 +47,7 @@ export const DashboardFeature = () => {
   const handleLogout = useCallback(() => {
     dispatch(authActions.logout());
     router.push('/login');
-  }, [dispatch, router]);
+  }, []);
 
   const handleUpload = useCallback(
     async (files: File[]) => {
@@ -103,36 +103,12 @@ export const DashboardFeature = () => {
 
   // ========== EFFECTS ==========
   useEffect(() => {
-    // Check authentication from Redux state
-    // This will work correctly after Redux Persist rehydrates
-    if (!isAuthenticatedState || !accessToken) {
-      router.push('/login');
-      return;
-    }
+    dispatch(dashboardActions.initDashboard());
 
-    // Initialize: fetch user and files
-    const initialize = async () => {
-      await dispatch(authActions.fetchCurrentUser());
-      await dispatch(filesActions.init());
-      setIsInitializing(false);
-    };
-
-    initialize();
-
-    // Cleanup on unmount
     return () => {
-      dispatch(filesActions.destroy());
+      dispatch(dashboardActions.destroyDashboard());
     };
-  }, [isAuthenticatedState, accessToken, dispatch, router]);
-
-  // Loading state
-  if (isInitializing) {
-    return (
-      <Center h="100vh" bg="gray.50">
-        <Spinner size="xl" color="brand.500" thickness="4px" />
-      </Center>
-    );
-  }
+  }, []);
 
   return (
     <DashboardLayout

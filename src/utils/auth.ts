@@ -1,30 +1,29 @@
 /**
  * Authentication Utilities
  * Now uses Redux persist for token management
- * @deprecated - Use Redux selectors directly instead of these utility functions
+ * @deprecated - Most functions moved to Redux store
  */
 
-import { getTokenFromStore } from '@/store/getToken';
+import { store } from '@/store';
 
 /**
  * Check if user is authenticated
- * @deprecated Use authSelectors.selectIsAuthenticated from Redux instead
- * 
- * This is kept for backward compatibility but should not be used in new code
+ * Checks Redux store for token and authentication status
  */
 export function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
   
-  const token = getTokenFromStore();
-  return !!token;
+  const state = store.getState();
+  return state.auth.isAuthenticated && !!state.auth.accessToken;
 }
 
 /**
- * Get access token
- * @deprecated Use authSelectors.selectAccessToken from Redux instead
+ * Get access token from Redux store
+ * @deprecated Use store selector instead: authSelectors.selectAccessToken
  */
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   
-  return getTokenFromStore();
+  const state = store.getState();
+  return state.auth.accessToken;
 }

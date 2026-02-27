@@ -39,7 +39,7 @@ import { useRouter } from 'next/navigation';
 interface DashboardLayoutProps {
   children: ReactNode;
   userEmail: string;
-  onLogout: () => void;
+  onLogout?: () => void;
 }
 
 interface NavItemProps {
@@ -79,7 +79,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   userEmail,
   onLogout,
 }) => {
-  const router = useRouter();
   const sidebarBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
@@ -137,7 +136,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </HStack>
             </MenuButton>
             <MenuList>
-              <MenuItem icon={<FiLogOut />} onClick={onLogout}>
+              <MenuItem icon={<FiLogOut />} onClick={() => onLogout?.()}>
                 Sign out
               </MenuItem>
             </MenuList>
@@ -173,7 +172,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 borderRadius="full"
               />
               <MenuList>
-                <MenuItem icon={<FiLogOut />} onClick={onLogout}>
+                <MenuItem icon={<FiLogOut />} onClick={() => onLogout?.()}>
                   Sign out
                 </MenuItem>
               </MenuList>
