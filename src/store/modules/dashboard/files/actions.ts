@@ -3,7 +3,7 @@
  */
 
 import { actions as A } from ".";
-import { filesApi } from "@/api-service";
+import { api } from "@/api-service";
 import type { AppDispatch } from "@/store";
 
 const init = () => {
@@ -24,15 +24,15 @@ const fetchFiles = () => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await filesApi.getAll();
+      const response = await api.files.getAll();
       
       console.log('🔍 [fetchFiles] API Response:', {
-        hasData: !!response.data,
-        filesCount: response.data?.length || 0,
-        sampleFile: response.data?.[0] || null,
+        status: response.status,
+        filesCount: Array.isArray(response.data) ? response.data.length : 0,
+        sampleFile: Array.isArray(response.data) ? response.data[0] : null,
       });
 
-      if (response.data) {
+      if (Array.isArray(response.data)) {
         dispatch(A.setFiles(response.data));
         console.log('✅ [fetchFiles] Files set to Redux store');
       }
@@ -62,7 +62,7 @@ const uploadFile = (file: File) => {
         type: file.type,
       });
 
-      const response = await filesApi.upload(file);
+      const response = await api.files.upload(file);
       
       console.log('✅ [uploadFile] Upload response:', response);
 
@@ -86,7 +86,7 @@ const deleteFile = (fileId: string) => {
     try {
       dispatch(A.setDeletingFileId(fileId));
 
-      await filesApi.delete(fileId);
+      await api.files.delete(fileId);
 
       dispatch(A.removeFile(fileId));
 

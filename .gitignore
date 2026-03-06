@@ -34,3 +34,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# OpenAPI generated files
+swagger.json
+/src/api-service/generated/
+
+# Package manager lock files (keep only yarn.lock)
+package-lock.json
+pnpm-lock.yaml

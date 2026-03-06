@@ -4,7 +4,7 @@
  */
 
 import { actions as A } from ".";
-import { authApi, RegisterRequest } from "@/api-service";
+import { api, type RegisterRequest } from "@/api-service";
 import type { AppDispatch } from "@/store";
 
 /**
@@ -31,17 +31,18 @@ const login = (email: string, password: string) => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.login({ email, password });
+      const response = await api.auth.login(email, password);
 
-      if (response.error) {
-        return { success: false, error: response.error };
-      }
+      // Generated API returns Axios response directly
+      const data = response.data as any;
+      const token = data?.data?.accessToken || data?.accessToken;
+      const user = data?.data?.user || data?.user;
 
-      if (response.data?.accessToken && response.data.user) {
+      if (token && user) {
         dispatch(
           A.setAuth({
-            user: response.data.user,
-            token: response.data.accessToken,
+            user,
+            token,
           }),
         );
 
@@ -49,10 +50,10 @@ const login = (email: string, password: string) => {
       }
 
       return { success: false, error: "No token or user received" };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Login failed",
+        error: error?.response?.data?.message || error.message || "Login failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -65,18 +66,19 @@ const register = (data: RegisterRequest) => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.register(data);
+      const response = await api.auth.register(data.email, data.password, data.name);
 
-      if (response.error) {
-        return { success: false, error: response.error };
-      }
+      // Generated API returns Axios response directly
+      const responseData = response.data as any;
+      const token = responseData?.data?.accessToken || responseData?.accessToken;
+      const user = responseData?.data?.user || responseData?.user;
 
-      if (response.data?.accessToken && response.data.user) {
+      if (token && user) {
         // Store token and user in Redux (will be persisted automatically)
         dispatch(
           A.setAuth({
-            user: response.data.user,
-            token: response.data.accessToken,
+            user,
+            token,
           }),
         );
 
@@ -84,10 +86,10 @@ const register = (data: RegisterRequest) => {
       }
 
       return { success: false, error: "No token or user received" };
-    } catch (error) {
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Registration failed",
+        error: error?.response?.data?.message || error.message || "Registration failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -106,10 +108,14 @@ const fetchCurrentUser = () => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.getCurrentUser();
+      const response = await api.users.getCurrentUser();
 
-      if (response.data) {
-        dispatch(A.setUser(response.data));
+      // Generated API returns Axios response
+      const data = response.data as any;
+      const user = data?.data || data;
+
+      if (user) {
+        dispatch(A.setUser(user));
       }
     } catch (error) {
       console.error("Failed to fetch user", error);

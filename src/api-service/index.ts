@@ -4,6 +4,10 @@
  */
 
 export * from './client';
-export * from './modules/auth/authApi';
-export * from './modules/files/filesApi';
+export * from './modules'; // Unified API client with all methods
 
+// Note: authApi and filesApi are now deprecated
+// Use the unified `api` object from './modules' instead:
+// - api.auth.login()
+// - api.files.upload()
+// etc.

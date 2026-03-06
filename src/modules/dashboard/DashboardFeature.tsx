@@ -56,32 +56,33 @@ export const DashboardFeature = () => {
     router.push('/login');
   }, []);
 
-  const handleUpload = useCallback(
-    async (files: File[]) => {
-      for (const file of files) {
-        const result = await dispatch(filesActions.uploadFile(file));
-
-        if (result.success) {
-          toast({
-            title: 'File uploaded',
-            description: `${file.name} uploaded successfully`,
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-          });
-        } else {
-          toast({
-            title: 'Upload failed',
-            description: result.error || 'Failed to upload file',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-        }
+  const handleUploadComplete = useCallback(
+    (success: boolean) => {
+      if (success) {
+        toast({
+          title: 'Upload complete',
+          description: 'File uploaded successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: 'Upload failed',
+          description: 'Failed to upload file',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
       }
     },
-    [dispatch, toast]
+    [toast]
   );
+
+  const handleRefreshFiles = useCallback(() => {
+    console.log('🔄 [DashboardFeature] Refreshing files...');
+    dispatch(filesActions.fetchFiles());
+  }, [dispatch]);
 
   const handleDelete = useCallback(
     async (fileId: string, fileName: string) => {
@@ -150,8 +151,8 @@ export const DashboardFeature = () => {
 
         {/* Upload Zone */}
         <FileUploadZone
-          onUpload={handleUpload}
-          isUploading={isUploading}
+          onUploadComplete={handleUploadComplete}
+          onRefreshFiles={handleRefreshFiles}
           mb={6}
         />
 

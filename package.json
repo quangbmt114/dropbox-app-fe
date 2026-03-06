@@ -6,7 +6,11 @@
         "dev": "next dev -p 4000",
         "build": "next build",
         "start": "next start -p 4000",
-        "lint": "next lint"
+        "lint": "next lint",
+        "download:schema": "curl http://localhost:7002/api-json > swagger.json",
+        "generate:api": "openapi-generator-cli generate -i swagger.json -g typescript-axios -o src/api-service/generated --additional-properties=supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
+        "update:api": "yarn download:schema && yarn generate:api",
+        "clean:api": "rm -rf src/api-service/generated swagger.json"
     },
     "dependencies": {
         "@chakra-ui/icons": "^2.1.1",
@@ -15,9 +19,11 @@
         "@emotion/styled": "^11.11.0",
         "@hookform/resolvers": "^5.2.2",
         "@reduxjs/toolkit": "^2.11.2",
+        "@types/lodash": "^4.17.24",
         "axios": "^1.13.5",
         "dayjs": "^1.11.19",
         "framer-motion": "^12.34.0",
+        "lodash": "^4.17.23",
         "next": "14.1.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -29,6 +35,7 @@
         "yup": "^1.7.1"
     },
     "devDependencies": {
+        "@openapitools/openapi-generator-cli": "^2.30.2",
         "@types/node": "^20.11.0",
         "@types/react": "^18.2.48",
         "@types/react-dom": "^18.2.18",

@@ -1,234 +1,183 @@
 # Dropbox Clone - Frontend
 
-A modern Next.js frontend application for a file storage and sharing platform.
+Next.js 14 application with TypeScript, Redux, Chakra UI, and auto-generated API client.
 
-## Tech Stack
-
-- **Next.js 14** (App Router)
-- **TypeScript** (Strict Mode)
-- **React 18**
-
-## Project Structure
-
-```
-dropbox-fe/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   ├── login/             # Login page
-│   │   └── page.tsx
-│   ├── register/          # Register page
-│   │   └── page.tsx
-│   └── dashboard/         # Protected dashboard
-│       └── page.tsx
-├── components/            # Reusable React components
-│   └── withAuth.tsx       # HOC for route protection
-├── lib/                   # Utility functions and configurations
-│   ├── api.ts            # API client with auth support
-│   └── auth.ts           # Authentication utilities
-├── .env.local            # Local environment variables (not in git)
-├── .env.example          # Example environment variables
-├── next.config.js        # Next.js configuration
-├── tsconfig.json         # TypeScript configuration
-└── package.json          # Dependencies
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+## 🚀 Quick Start
 
 ```bash
+# Install dependencies
 npm install
-```
 
-3. Configure environment variables:
-
-Create `.env.local` file:
-
-```bash
-echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
-```
-
-Or manually create `.env.local` with:
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-### Development
-
-Run the development server:
-
-```bash
+# Run development server (port 4000)
 npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+## 🔧 Tech Stack
 
-### Build
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **UI Library**: Chakra UI
+- **State Management**: Redux Toolkit + Redux Persist
+- **Form Handling**: React Hook Form + Yup
+- **API Client**: Auto-generated from OpenAPI (TypeScript Axios)
+- **File Upload**: Chunked upload support (with pause/resume)
+- **Date/Time**: Day.js with timezone support
+- **Utilities**: Lodash (tree-shaken imports)
 
-Build the production application:
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Next.js app router pages
+├── modules/               # Feature modules
+│   ├── auth/             # Authentication
+│   └── dashboard/        # Dashboard & file management
+├── components/           # Shared components
+├── store/               # Redux store
+├── api-service/         # API client
+│   ├── client.ts        # Axios client
+│   ├── generated/       # Auto-generated from backend
+│   └── modules/
+│       └── index.ts     # Unified API client
+├── hooks/               # Custom React hooks
+├── utils/               # Utility functions
+└── constants/           # Constants & configurations
+```
+
+## 🌐 API Client
+
+### Auto-Generated from Backend
+
+```bash
+# Update API client when backend changes
+npm run update:api
+```
+
+### Usage
+
+```typescript
+import { api } from '@/api-service';
+
+// Authentication
+await api.auth.login(email, password);
+await api.auth.register(email, password, name);
+
+// Files
+await api.files.upload(file);
+await api.files.getAll();
+await api.files.delete(fileId);
+
+// Chunked upload (for large files)
+await api.chunks.uploadChunk(...);
+await api.chunks.complete(...);
+
+// Helpers
+const url = api.helpers.getFileUrl(file);
+```
+
+## 📦 File Upload
+
+### Automatic Strategy Selection
+
+- **< 10MB**: Direct upload
+- **10-100MB**: Sequential chunking (5MB chunks)
+- **100-500MB**: Parallel chunking (10MB chunks, 3 parallel)
+- **> 500MB**: Aggressive parallel (10MB chunks, 5 parallel)
+
+### Features
+
+- ✅ Automatic chunking for large files
+- ✅ Progress tracking with speed & ETA
+- ✅ Pause/Resume support
+- ✅ Auto-retry on failure
+- ✅ Parallel chunk uploads
+
+## 🔐 Environment Variables
+
+Create `.env.local`:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:7002
+NEXT_PUBLIC_CLIENT_PORT=4000
+```
+
+## 📝 Available Scripts
+
+```bash
+npm run dev              # Development server (port 4000)
+npm run build           # Production build
+npm run start           # Production server
+npm run lint            # ESLint
+npm run download:schema # Download OpenAPI schema
+npm run generate:api    # Generate API client
+npm run update:api      # Download + Generate
+npm run clean:api       # Clean generated files
+```
+
+## 🎨 Features
+
+- ✅ Authentication (Login/Register)
+- ✅ File upload (direct & chunked)
+- ✅ File management (view, delete, download)
+- ✅ File preview (images, videos)
+- ✅ Storage statistics
+- ✅ Grid/List view toggle
+- ✅ Progress tracking for uploads
+- ✅ Responsive design
+- ✅ Type-safe API client
+- ✅ Auto-generated types from backend
+
+## 🔄 Update API Client
+
+When backend API changes:
+
+```bash
+# Make sure backend is running on port 7002
+npm run update:api
+```
+
+This will:
+1. Download OpenAPI schema from backend
+2. Generate TypeScript client
+3. Update types automatically
+
+## 📚 Key Files
+
+- `src/api-service/modules/index.ts` - Unified API client
+- `src/hooks/useChunkUpload.ts` - Chunked upload hook
+- `src/utils/chunkUploader.ts` - Chunk upload logic
+- `src/utils/format.ts` - Formatting utilities
+- `src/constants/api.ts` - API endpoint constants
+
+## 🏗️ Build
 
 ```bash
 npm run build
 ```
 
-### Start Production Server
+Output:
+- Static pages: 8 routes
+- Dashboard bundle: ~40 kB
+- Total First Load JS: ~110 kB
 
-```bash
-npm start
-```
+## 🔗 Backend
 
-## Authentication System
+Backend should run on `http://localhost:7002`
 
-### Overview
+Required endpoints:
+- `/auth/login`
+- `/auth/register`
+- `/files/upload`
+- `/files`
+- `/files/:id`
+- OpenAPI spec at `/api-json`
 
-The application implements a simple token-based authentication system:
+---
 
-1. **Login/Register** - User authenticates via `/auth/login` or `/auth/register`
-2. **Token Storage** - Access token is saved in `localStorage`
-3. **Auto-Injection** - Token is automatically included in all API requests via `Authorization: Bearer <token>` header
-4. **Route Protection** - Dashboard page checks authentication status and fetches user data
-
-### Pages
-
-- **`/`** - Home page with health check and navigation links
-- **`/login`** - Login form
-- **`/register`** - Registration form with password confirmation
-- **`/dashboard`** - Protected page displaying user email (requires authentication)
-
-### Authentication Flow
-
-```
-1. User visits /login or /register
-2. User submits credentials
-3. API returns { accessToken, user }
-4. Token is saved to localStorage
-5. User is redirected to /dashboard
-6. Dashboard fetches /users/me (with token in header)
-7. User email is displayed
-```
-
-### Logout Flow
-
-```
-1. User clicks logout button
-2. Token is removed from localStorage
-3. User is redirected to /login
-```
-
-## API Client
-
-The API client is located in `lib/api.ts` and provides:
-
-- **Automatic token injection** - Reads from localStorage and adds to Authorization header
-- **GET, POST, PUT, DELETE** methods
-- **Centralized error handling**
-- **TypeScript support with generics**
-- **Pre-built auth methods**: `login()`, `register()`, `getCurrentUser()`
-
-### Usage Example
-
-```typescript
-import { login, getCurrentUser, get, post } from '@/lib/api'
-
-// Login
-const response = await login({ 
-  email: 'user@example.com', 
-  password: 'password123' 
-})
-
-if (response.data?.accessToken) {
-  saveToken(response.data.accessToken)
-}
-
-// Get current user (token automatically included)
-const user = await getCurrentUser()
-
-// Custom authenticated request
-const files = await get('/api/files')
-```
-
-## Authentication Utilities
-
-Located in `lib/auth.ts`:
-
-```typescript
-import { saveToken, getToken, removeToken, isAuthenticated, logout } from '@/lib/auth'
-
-// Save token after login
-saveToken('your-token-here')
-
-// Check if user is authenticated
-if (isAuthenticated()) {
-  // User is logged in
-}
-
-// Logout (removes token and redirects)
-logout()
-```
-
-## Environment Variables
-
-- `NEXT_PUBLIC_API_URL` - Backend API base URL (default: `http://localhost:8000`)
-
-## Features
-
-### Implemented
-
-- ✅ Next.js App Router setup
-- ✅ TypeScript with strict mode
-- ✅ API client with automatic token injection
-- ✅ Environment variable configuration
-- ✅ Authentication system (login/register/logout)
-- ✅ Token-based authentication with localStorage
-- ✅ Protected dashboard route
-- ✅ User profile display (`/users/me`)
-- ✅ Clean folder structure
-
-### Not Implemented
-
-- ⏳ UI Styling Framework (intentionally kept minimal)
-- ⏳ File upload/download functionality
-- ⏳ File sharing features
-
-## API Endpoints Used
-
-- `GET /health` - Health check
-- `POST /auth/login` - User login
-- `POST /auth/register` - User registration
-- `GET /users/me` - Get current user (requires authentication)
-
-## TypeScript Configuration
-
-The project uses strict TypeScript configuration:
-
-- Strict mode enabled
-- Full type checking
-- No implicit any
-- ESNext target support
-
-## Security Notes
-
-- Tokens are stored in `localStorage` (simple approach, not cookies)
-- No external authentication libraries used
-- Authorization header format: `Bearer <token>`
-- Protected routes redirect to `/login` if not authenticated
-- 401 responses trigger automatic logout
-
-## Next Steps
-
-1. Add UI styling framework (e.g., Tailwind CSS, shadcn/ui)
-2. Build file management components
-3. Add file upload functionality
-4. Implement sharing features
-5. Add refresh token mechanism
-6. Consider moving to httpOnly cookies for better security
+**Built with ❤️ using Next.js & TypeScript**
