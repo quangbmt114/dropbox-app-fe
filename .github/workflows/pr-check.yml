@@ -24,6 +24,41 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Create stub for generated files
+        run: |
+          mkdir -p src/api-service/generated/api
+          mkdir -p src/api-service/generated/models
+          cat > src/api-service/generated/index.ts << 'EOF'
+          export * from './api';
+          export * from './models';
+          export { Configuration } from './configuration';
+          EOF
+          cat > src/api-service/generated/configuration.ts << 'EOF'
+          export class Configuration {
+            constructor(params?: any) {}
+          }
+          EOF
+          cat > src/api-service/generated/models/index.ts << 'EOF'
+          export interface RegisterDto {}
+          export interface LoginDto {}
+          export interface CompleteUploadDto {}
+          export interface FilesControllerDeleteMultipleFilesRequest {}
+          EOF
+          cat > src/api-service/generated/api/index.ts << 'EOF'
+          export class AuthenticationApi {
+            constructor(config?: any) {}
+          }
+          export class FilesApi {
+            constructor(config?: any) {}
+          }
+          export class UsersApi {
+            constructor(config?: any) {}
+          }
+          export class HealthApi {
+            constructor(config?: any) {}
+          }
+          EOF
+
       - name: Check formatting
         run: yarn format:check
 
