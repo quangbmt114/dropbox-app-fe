@@ -2,10 +2,9 @@
  * Files Store Actions
  */
 
-import { actions as A } from '.';
-import { filesApi } from '@/api-service';
-import { removeToken } from '@/utils/auth';
-import type { AppDispatch } from '@/store';
+import { actions as A } from ".";
+import { api } from "@/api-service";
+import type { AppDispatch } from "@/store";
 
 const init = () => {
   return async (dispatch: AppDispatch) => {
@@ -13,7 +12,7 @@ const init = () => {
       dispatch(A.pushLoading());
       await dispatch(fetchFiles());
     } catch (error) {
-      console.error('Failed to initialize files', error);
+      console.error("Failed to initialize files", error);
     } finally {
       dispatch(A.popLoading());
     }
@@ -25,26 +24,25 @@ const fetchFiles = () => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await filesApi.getAll();
+      const response = await api.files.getAll();
+      
+      console.log('🔍 [fetchFiles] API Response:', {
+        status: response.status,
+        filesCount: Array.isArray(response.data) ? response.data.length : 0,
+        sampleFile: Array.isArray(response.data) ? response.data[0] : null,
+      });
 
-      if (response.error) {
-        if (response.status === 401) {
-          // Unauthorized - logout
-          removeToken();
-          window.location.href = '/login';
-        }
-        return { success: false, error: response.error };
-      }
-
-      if (response.data) {
+      if (Array.isArray(response.data)) {
         dispatch(A.setFiles(response.data));
+        console.log('✅ [fetchFiles] Files set to Redux store');
       }
 
       return { success: true };
     } catch (error) {
+      console.error('❌ [fetchFiles] Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch files',
+        error: error instanceof Error ? error.message : "Failed to fetch files",
       };
     } finally {
       dispatch(A.popLoading());
@@ -58,24 +56,24 @@ const uploadFile = (file: File) => {
       const tempId = `temp-${Date.now()}`;
       dispatch(A.setUploadingFileId(tempId));
 
-      const response = await filesApi.upload(file);
+      console.log('⬆️ [uploadFile] Starting upload:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
 
-      if (response.error) {
-        if (response.status === 401) {
-          removeToken();
-          window.location.href = '/login';
-        }
-        return { success: false, error: response.error };
-      }
+      const response = await api.files.upload(file);
+      
+      console.log('✅ [uploadFile] Upload response:', response);
 
-      // Refresh files list after successful upload
       await dispatch(fetchFiles());
 
       return { success: true };
     } catch (error) {
+      console.error('❌ [uploadFile] Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to upload file',
+        error: error instanceof Error ? error.message : "Failed to upload file",
       };
     } finally {
       dispatch(A.setUploadingFileId(null));
@@ -88,24 +86,15 @@ const deleteFile = (fileId: string) => {
     try {
       dispatch(A.setDeletingFileId(fileId));
 
-      const response = await filesApi.delete(fileId);
+      await api.files.delete(fileId);
 
-      if (response.error) {
-        if (response.status === 401) {
-          removeToken();
-          window.location.href = '/login';
-        }
-        return { success: false, error: response.error };
-      }
-
-      // Remove file from state
       dispatch(A.removeFile(fileId));
 
       return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete file',
+        error: error instanceof Error ? error.message : "Failed to delete file",
       };
     } finally {
       dispatch(A.setDeletingFileId(null));
@@ -126,4 +115,3 @@ export const extendActions = {
   uploadFile,
   deleteFile,
 };
-

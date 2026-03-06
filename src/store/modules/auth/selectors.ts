@@ -9,6 +9,8 @@ const selectRoot = (state: RootState) => state.auth;
 
 const selectUser = createSelector([selectRoot], (state) => state.user);
 
+const selectAccessToken = createSelector([selectRoot], (state) => state.accessToken);
+
 const selectIsAuthenticated = createSelector(
   [selectRoot],
   (state) => state.isAuthenticated
@@ -21,6 +23,7 @@ const selectIsLoading = createSelector(
 
 export const selectors = {
   selectUser,
+  selectAccessToken,
   selectIsAuthenticated,
   selectIsLoading,
 };

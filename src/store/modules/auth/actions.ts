@@ -1,38 +1,59 @@
 /**
  * Auth Store Actions
+ * Now using Redux persist to handle tokens instead of localStorage
  */
 
-import { actions as A } from '.';
-import { authApi } from '@/api-service';
-import { saveToken, removeToken } from '@/utils/auth';
-import type { AppDispatch } from '@/store';
+import { actions as A } from ".";
+import { api, type RegisterRequest } from "@/api-service";
+import type { AppDispatch } from "@/store";
+
+/**
+ * Initialize Auth
+ * Check và fetch current user nếu có token
+ */
+const initAuth = () => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await dispatch(fetchCurrentUser());
+      return { success: true, data: result };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to initialize auth",
+      };
+    }
+  };
+};
 
 const login = (email: string, password: string) => {
   return async (dispatch: AppDispatch) => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.login({ email, password });
+      const response = await api.auth.login(email, password);
 
-      if (response.error) {
-        return { success: false, error: response.error };
-      }
+      // Generated API returns Axios response directly
+      const data = response.data as any;
+      const token = data?.data?.accessToken || data?.accessToken;
+      const user = data?.data?.user || data?.user;
 
-      if (response.data?.accessToken) {
-        saveToken(response.data.accessToken);
-
-        if (response.data.user) {
-          dispatch(A.setUser(response.data.user));
-        }
+      if (token && user) {
+        dispatch(
+          A.setAuth({
+            user,
+            token,
+          }),
+        );
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token received' };
-    } catch (error) {
+      return { success: false, error: "No token or user received" };
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Login failed',
+        error: error?.response?.data?.message || error.message || "Login failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -40,32 +61,35 @@ const login = (email: string, password: string) => {
   };
 };
 
-const register = (email: string, password: string) => {
+const register = (data: RegisterRequest) => {
   return async (dispatch: AppDispatch) => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.register({ email, password });
+      const response = await api.auth.register(data.email, data.password, data.name);
 
-      if (response.error) {
-        return { success: false, error: response.error };
-      }
+      // Generated API returns Axios response directly
+      const responseData = response.data as any;
+      const token = responseData?.data?.accessToken || responseData?.accessToken;
+      const user = responseData?.data?.user || responseData?.user;
 
-      if (response.data?.accessToken) {
-        saveToken(response.data.accessToken);
-
-        if (response.data.user) {
-          dispatch(A.setUser(response.data.user));
-        }
+      if (token && user) {
+        // Store token and user in Redux (will be persisted automatically)
+        dispatch(
+          A.setAuth({
+            user,
+            token,
+          }),
+        );
 
         return { success: true };
       }
 
-      return { success: false, error: 'No token received' };
-    } catch (error) {
+      return { success: false, error: "No token or user received" };
+    } catch (error: any) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Registration failed',
+        error: error?.response?.data?.message || error.message || "Registration failed",
       };
     } finally {
       dispatch(A.popLoading());
@@ -75,8 +99,7 @@ const register = (email: string, password: string) => {
 
 const logout = () => {
   return async (dispatch: AppDispatch) => {
-    removeToken();
-    dispatch(A.clearUser());
+    dispatch(A.clearAuth());
   };
 };
 
@@ -85,22 +108,17 @@ const fetchCurrentUser = () => {
     try {
       dispatch(A.pushLoading());
 
-      const response = await authApi.getCurrentUser();
+      const response = await api.users.getCurrentUser();
 
-      if (response.error) {
-        if (response.status === 401) {
-          // Unauthorized - clear user
-          dispatch(A.clearUser());
-          removeToken();
-        }
-        return;
-      }
+      // Generated API returns Axios response
+      const data = response.data as any;
+      const user = data?.data || data;
 
-      if (response.data) {
-        dispatch(A.setUser(response.data));
+      if (user) {
+        dispatch(A.setUser(user));
       }
     } catch (error) {
-      console.error('Failed to fetch user', error);
+      console.error("Failed to fetch user", error);
     } finally {
       dispatch(A.popLoading());
     }
@@ -108,9 +126,9 @@ const fetchCurrentUser = () => {
 };
 
 export const extendActions = {
+  initAuth,
   login,
   register,
   logout,
   fetchCurrentUser,
 };
-

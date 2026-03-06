@@ -2,11 +2,11 @@
  * API Client - Singleton Pattern with Axios
  * 
  * Centralized API client for all HTTP requests
- * Uses axios with automatic token injection
+ * Uses axios with automatic token injection from Redux store
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { getToken } from '@/utils/auth';
+import { getTokenFromStore } from '@/store/getToken';
 import { env } from '@/config/env';
 
 const API_BASE_URL = env.api.baseUrl;
@@ -34,10 +34,10 @@ class ApiClient {
       },
     });
 
-    // Request interceptor: Add token to all requests
+    // Request interceptor: Add token from Redux store to all requests
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        const token = getToken();
+        const token = getTokenFromStore();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -48,9 +48,17 @@ class ApiClient {
       }
     );
 
-    // Response interceptor: Handle errors globally
+    // Response interceptor: Unwrap backend response and handle errors
     this.axiosInstance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Unwrap backend response structure: { success, message, data }
+        if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+          // Backend returns: { success, message, data: {...} }
+          // Extract the inner "data" field
+          response.data = response.data.data;
+        }
+        return response;
+      },
       (error) => {
         // You can handle global errors here (e.g., 401 redirect)
         return Promise.reject(error);

@@ -1,44 +1,29 @@
 /**
  * Authentication Utilities
- * Handles token management and authentication state
+ * Now uses Redux persist for token management
+ * @deprecated - Most functions moved to Redux store
  */
 
-import { env } from '@/config/env';
-
-const TOKEN_KEY = env.auth.tokenKey;
+import { store } from '@/store';
 
 /**
- * Save access token to localStorage
- */
-export function saveToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
-}
-
-/**
- * Get access token from localStorage
- */
-export function getToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-  return null;
-}
-
-/**
- * Remove access token from localStorage
- */
-export function removeToken(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-}
-
-/**
- * Check if user is authenticated (has valid token)
+ * Check if user is authenticated
+ * Checks Redux store for token and authentication status
  */
 export function isAuthenticated(): boolean {
-  return getToken() !== null;
+  if (typeof window === 'undefined') return false;
+  
+  const state = store.getState();
+  return state.auth.isAuthenticated && !!state.auth.accessToken;
 }
 
+/**
+ * Get access token from Redux store
+ * @deprecated Use store selector instead: authSelectors.selectAccessToken
+ */
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  const state = store.getState();
+  return state.auth.accessToken;
+}

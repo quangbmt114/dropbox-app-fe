@@ -2,186 +2,232 @@
 
 /**
  * Register Form Component
+ * Modern registration form with Chakra UI and react-hook-form
+ * Validation handled by Yup in parent component
  */
 
 import { FormEvent } from 'react';
+import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  Heading,
+  Input,
+  Text,
+  VStack,
+  Alert,
+  AlertIcon,
+  Link,
+  Card,
+  CardBody,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+} from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { useState } from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-interface RegisterFormProps {
+interface RegisterFormData {
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  error: string;
+}
+
+interface RegisterFormProps {
+  register: UseFormRegister<RegisterFormData>;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  errors: FieldErrors<RegisterFormData>;
   isLoading: boolean;
-  onEmailChange: (email: string) => void;
-  onPasswordChange: (password: string) => void;
-  onConfirmPasswordChange: (password: string) => void;
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
-  email,
-  password,
-  confirmPassword,
-  error,
+  register,
+  handleSubmit,
+  errors,
   isLoading,
-  onEmailChange,
-  onPasswordChange,
-  onConfirmPasswordChange,
-  onSubmit,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#f5f5f5',
-        fontFamily: 'system-ui, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          background: 'white',
-          padding: '2rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          width: '100%',
-          maxWidth: '400px',
-        }}
-      >
-        <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Register</h1>
-
-        <form onSubmit={onSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label
-              htmlFor="email"
-              style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontWeight: '500',
-              }}
+    <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" py={12}>
+      <Container maxW="md">
+        <VStack spacing={8} align="stretch">
+          {/* Logo/Brand */}
+          <Box textAlign="center">
+            <Heading
+              as="h1"
+              size="2xl"
+              color="brand.500"
+              fontWeight="bold"
+              mb={2}
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-              }}
-            />
-          </div>
+              Dropbox
+            </Heading>
+            <Text color="gray.600" fontSize="lg">
+              Create your account
+            </Text>
+          </Box>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label
-              htmlFor="password"
-              style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontWeight: '500',
-              }}
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-              }}
-            />
-          </div>
+          {/* Register Card */}
+          <Card shadow="lg" borderRadius="xl">
+            <CardBody p={8}>
+              <form onSubmit={handleSubmit}>
+                <VStack spacing={5} align="stretch">
+                  {/* Name Field */}
+                  <FormControl isRequired isInvalid={!!errors.name}>
+                    <FormLabel fontWeight="medium" color="gray.700">
+                      Full Name
+                    </FormLabel>
+                    <Input
+                      {...register('name')}
+                      type="text"
+                      placeholder="John Doe"
+                      size="lg"
+                      bg="white"
+                      borderColor="gray.300"
+                      _hover={{ borderColor: 'gray.400' }}
+                      _focus={{
+                        borderColor: 'brand.500',
+                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                      }}
+                    />
+                    <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+                  </FormControl>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label
-              htmlFor="confirmPassword"
-              style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontWeight: '500',
-              }}
-            >
-              Confirm Password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => onConfirmPasswordChange(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '1rem',
-              }}
-            />
-          </div>
+                  {/* Email Field */}
+                  <FormControl isRequired isInvalid={!!errors.email}>
+                    <FormLabel fontWeight="medium" color="gray.700">
+                      Email
+                    </FormLabel>
+                    <Input
+                      {...register('email')}
+                      type="email"
+                      placeholder="name@example.com"
+                      size="lg"
+                      bg="white"
+                      borderColor="gray.300"
+                      _hover={{ borderColor: 'gray.400' }}
+                      _focus={{
+                        borderColor: 'brand.500',
+                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                      }}
+                    />
+                    <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+                  </FormControl>
 
-          {error && (
-            <div
-              style={{
-                padding: '0.75rem',
-                marginBottom: '1rem',
-                background: '#fee',
-                border: '1px solid #fcc',
-                borderRadius: '4px',
-                color: '#c33',
-              }}
-            >
-              {error}
-            </div>
-          )}
+                  {/* Password Field */}
+                  <FormControl isRequired isInvalid={!!errors.password}>
+                    <FormLabel fontWeight="medium" color="gray.700">
+                      Password
+                    </FormLabel>
+                    <InputGroup size="lg">
+                      <Input
+                        {...register('password')}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Create a strong password"
+                        bg="white"
+                        borderColor="gray.300"
+                        _hover={{ borderColor: 'gray.400' }}
+                        _focus={{
+                          borderColor: 'brand.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                    <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+                  </FormControl>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              background: isLoading ? '#ccc' : '#0070f3',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '1rem',
-              fontWeight: '500',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {isLoading ? 'Creating account...' : 'Register'}
-          </button>
-        </form>
+                  {/* Confirm Password Field */}
+                  <FormControl isRequired isInvalid={!!errors.confirmPassword}>
+                    <FormLabel fontWeight="medium" color="gray.700">
+                      Confirm Password
+                    </FormLabel>
+                    <InputGroup size="lg">
+                      <Input
+                        {...register('confirmPassword')}
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        bg="white"
+                        borderColor="gray.300"
+                        _hover={{ borderColor: 'gray.400' }}
+                        _focus={{
+                          borderColor: 'brand.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                          icon={showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                    <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
+                  </FormControl>
 
-        <p
-          style={{
-            marginTop: '1.5rem',
-            textAlign: 'center',
-            color: '#666',
-          }}
-        >
-          Already have an account?{' '}
-          <a href="/login" style={{ color: '#0070f3', textDecoration: 'none' }}>
-            Login
-          </a>
-        </p>
-      </div>
-    </div>
+                  {/* Root Error (API errors) */}
+                  {errors.root && (
+                    <Alert status="error" borderRadius="md">
+                      <AlertIcon />
+                      {errors.root.message}
+                    </Alert>
+                  )}
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    colorScheme="brand"
+                    size="lg"
+                    fontSize="md"
+                    fontWeight="semibold"
+                    isLoading={isLoading}
+                    loadingText="Creating account..."
+                    w="full"
+                    mt={2}
+                  >
+                    Create Account
+                  </Button>
+                </VStack>
+              </form>
+            </CardBody>
+          </Card>
+
+          {/* Login Link */}
+          <Box textAlign="center">
+            <Text color="gray.600">
+              Already have an account?{' '}
+              <Link
+                as={NextLink}
+                href="/login"
+                color="brand.500"
+                fontWeight="semibold"
+                _hover={{ textDecoration: 'underline' }}
+              >
+                Sign in
+              </Link>
+            </Text>
+          </Box>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
-

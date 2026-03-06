@@ -1,107 +1,196 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { authApi } from '@/api-service'
+/**
+ * Home/Landing Page
+ * Dropbox-inspired landing page with Chakra UI
+ */
+
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  Button,
+  VStack,
+  HStack,
+  Stack,
+  Icon,
+  SimpleGrid,
+  Badge,
+} from '@chakra-ui/react';
+import { FiUploadCloud, FiFolder, FiShare2, FiShield } from 'react-icons/fi';
+import Link from 'next/link';
+
+const features = [
+  {
+    icon: FiUploadCloud,
+    title: 'Easy Upload',
+    description: 'Drag and drop files to upload them instantly',
+  },
+  {
+    icon: FiFolder,
+    title: 'Organize Files',
+    description: 'Keep your files organized and easy to find',
+  },
+  {
+    icon: FiShare2,
+    title: 'Share Anywhere',
+    description: 'Access your files from any device, anytime',
+  },
+  {
+    icon: FiShield,
+    title: 'Secure Storage',
+    description: 'Your files are encrypted and protected',
+  },
+];
 
 export default function Home() {
-  const [healthStatus, setHealthStatus] = useState<string>('Checking...')
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchHealth = async () => {
-      setIsLoading(true)
-      const response = await authApi.checkHealth()
-
-      if (response.error) {
-        setHealthStatus(`Error: ${response.error}`)
-      } else if (response.data) {
-        setHealthStatus(`API Status: ${response.data.status}`)
-      }
-
-      setIsLoading(false)
-    }
-
-    fetchHealth()
-  }, [])
-
   return (
-    <main style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>Dropbox Clone - Frontend</h1>
+    <Box>
+      {/* Hero Section */}
+      <Box
+        bgGradient="linear(to-br, brand.500, brand.700)"
+        color="white"
+        py={{ base: 20, md: 32 }}
+      >
+        <Container maxW="container.xl">
+          <VStack spacing={6} textAlign="center" maxW="3xl" mx="auto" alignItems="center">
+            <Badge
+              colorScheme="whiteAlpha"
+              fontSize="sm"
+              px={3}
+              py={1}
+              borderRadius="full"
+            >
+              Modern File Storage
+            </Badge>
+            <Heading
+              as="h1"
+              size={{ base: '2xl', md: '3xl', lg: '4xl' }}
+              fontWeight="bold"
+              lineHeight="1.2"
+            >
+              Your files, anywhere you go
+            </Heading>
+            <Text fontSize={{ base: 'lg', md: 'xl' }} opacity={0.9} maxW="2xl">
+              Store, share, and collaborate on your files from any device.
+              Simple, secure, and reliable cloud storage.
+            </Text>
+            <Stack
+              direction={{ base: 'column', sm: 'row' }}
+              spacing={4}
+              pt={4}
+            >
+              <Button
+                as={Link}
+                href="/register"
+                size="lg"
+                colorScheme="whiteAlpha"
+                bg="white"
+                color="brand.600"
+                px={8}
+                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
+                transition="all 0.2s"
+              >
+                Get Started
+              </Button>
+              <Button
+                as={Link}
+                href="/login"
+                size="lg"
+                variant="outline"
+                borderColor="white"
+                color="white"
+                px={8}
+                _hover={{
+                  bg: 'whiteAlpha.200',
+                  transform: 'translateY(-2px)',
+                }}
+                transition="all 0.2s"
+              >
+                Sign In
+              </Button>
+            </Stack>
+          </VStack>
+        </Container>
+      </Box>
 
-      <div style={{ marginTop: '2rem', padding: '1rem', background: '#f5f5f5', borderRadius: '8px' }}>
-        <h2>API Health Check</h2>
-        <p>
-          {isLoading ? (
-            <span>Loading...</span>
-          ) : (
-            <span>{healthStatus}</span>
-          )}
-        </p>
-        <small style={{ color: '#666' }}>
-          API URL: {process.env.NEXT_PUBLIC_API_URL || 'Not configured'}
-        </small>
-      </div>
+      {/* Features Section */}
+      <Box py={{ base: 16, md: 24 }} bg="gray.50">
+        <Container maxW="container.xl">
+          <VStack spacing={12}>
+            <VStack spacing={4} textAlign="center">
+              <Heading size="xl">Everything you need</Heading>
+              <Text fontSize="lg" color="gray.600" maxW="2xl">
+                Powerful features to help you manage and organize your files
+              </Text>
+            </VStack>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Project Status</h2>
-        <ul>
-          <li>✅ Next.js App Router</li>
-          <li>✅ TypeScript (Strict Mode)</li>
-          <li>✅ Redux State Management</li>
-          <li>✅ Modular Architecture</li>
-          <li>✅ API Client Configuration</li>
-          <li>✅ Environment Variables</li>
-          <li>✅ Authentication (Implemented)</li>
-          <li>✅ File Management (Implemented)</li>
-          <li>⏳ UI Styling (Not Implemented)</li>
-        </ul>
-      </div>
+            <SimpleGrid
+              columns={{ base: 1, md: 2, lg: 4 }}
+              spacing={8}
+              w="full"
+            >
+              {features.map((feature, index) => (
+                <VStack
+                  key={index}
+                  bg="white"
+                  p={8}
+                  borderRadius="xl"
+                  spacing={4}
+                  align="start"
+                  boxShadow="sm"
+                  transition="all 0.2s"
+                  _hover={{ boxShadow: 'md', transform: 'translateY(-4px)' }}
+                >
+                  <Box
+                    bg="brand.50"
+                    p={3}
+                    borderRadius="lg"
+                    color="brand.500"
+                  >
+                    <Icon as={feature.icon} boxSize={6} />
+                  </Box>
+                  <Heading size="md">{feature.title}</Heading>
+                  <Text color="gray.600">{feature.description}</Text>
+                </VStack>
+              ))}
+            </SimpleGrid>
+          </VStack>
+        </Container>
+      </Box>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Quick Links</h2>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <a
-            href="/login"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#0070f3',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
+      {/* CTA Section */}
+      <Box py={{ base: 16, md: 24 }}>
+        <Container maxW="container.xl">
+          <Box
+            bg="brand.500"
+            color="white"
+            borderRadius="2xl"
+            p={{ base: 8, md: 16 }}
+            textAlign="center"
           >
-            Login
-          </a>
-          <a
-            href="/register"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#10b981',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
-          >
-            Register
-          </a>
-          <a
-            href="/dashboard"
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#6366f1',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: '500'
-            }}
-          >
-            Dashboard
-          </a>
-        </div>
-      </div>
-    </main>
-  )
+            <VStack spacing={6}>
+              <Heading size="xl">Ready to get started?</Heading>
+              <Text fontSize="lg" opacity={0.9} maxW="2xl">
+                Join thousands of users who trust us with their files
+              </Text>
+              <Button
+                as={Link}
+                href="/register"
+                size="lg"
+                bg="white"
+                color="brand.600"
+                px={8}
+                _hover={{ transform: 'translateY(-2px)', shadow: 'lg' }}
+                transition="all 0.2s"
+              >
+                Create Free Account
+              </Button>
+            </VStack>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
+  );
 }
-
