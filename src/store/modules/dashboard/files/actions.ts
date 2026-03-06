@@ -25,13 +25,21 @@ const fetchFiles = () => {
       dispatch(A.pushLoading());
 
       const response = await filesApi.getAll();
+      
+      console.log('🔍 [fetchFiles] API Response:', {
+        hasData: !!response.data,
+        filesCount: response.data?.length || 0,
+        sampleFile: response.data?.[0] || null,
+      });
 
       if (response.data) {
         dispatch(A.setFiles(response.data));
+        console.log('✅ [fetchFiles] Files set to Redux store');
       }
 
       return { success: true };
     } catch (error) {
+      console.error('❌ [fetchFiles] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Failed to fetch files",
@@ -48,12 +56,21 @@ const uploadFile = (file: File) => {
       const tempId = `temp-${Date.now()}`;
       dispatch(A.setUploadingFileId(tempId));
 
-      await filesApi.upload(file);
+      console.log('⬆️ [uploadFile] Starting upload:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+
+      const response = await filesApi.upload(file);
+      
+      console.log('✅ [uploadFile] Upload response:', response);
 
       await dispatch(fetchFiles());
 
       return { success: true };
     } catch (error) {
+      console.error('❌ [uploadFile] Error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : "Failed to upload file",

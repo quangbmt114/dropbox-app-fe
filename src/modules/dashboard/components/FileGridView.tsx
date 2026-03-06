@@ -258,7 +258,7 @@ export const FileGridView: React.FC<FileGridViewProps> = ({
               </HStack>
 
               <Text fontSize="xs" color="gray.400">
-                {formatDate(file.createdAt)}
+                {formatDate(file.uploadedAt)}
               </Text>
             </VStack>
           </Box>

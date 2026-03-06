@@ -40,8 +40,15 @@ export const DashboardFeature = () => {
   const isUploading = useAppSelector(filesSelectors.selectIsUploading);
   const deletingFileId = useAppSelector(filesSelectors.selectDeletingFileId);
 
-  const [isInitializing, setIsInitializing] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Debug: Log files changes
+  useEffect(() => {
+    console.log('📂 [DashboardFeature] Files updated:', {
+      count: files.length,
+      files: files,
+    });
+  }, [files]);
 
   // ========== CALLBACKS ==========
   const handleLogout = useCallback(() => {

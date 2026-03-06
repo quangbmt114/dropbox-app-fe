@@ -48,15 +48,25 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
 
   const renderPreview = () => {
     if (!file.url) {
+      console.warn('⚠️ [FilePreviewModal] No URL for file:', file.filename);
       return (
         <Center h="400px">
           <VStack spacing={4}>
             <Icon as={FiFile} boxSize={16} color="gray.400" />
             <Text color="gray.500">Preview not available</Text>
+            <Text fontSize="sm" color="gray.400">No URL provided</Text>
           </VStack>
         </Center>
       );
     }
+
+    console.log('🔍 [FilePreviewModal] Previewing file:', {
+      filename: file.filename,
+      url: file.url,
+      mimeType: file.mimeType,
+      isImage: isImage(file.filename),
+      isVideo: isVideo(file.filename),
+    });
 
     // Image Preview
     if (isImage(file.filename)) {
@@ -80,13 +90,29 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
 
     // Video Preview
     if (isVideo(file.filename)) {
+      console.log('🎬 [FilePreviewModal] Rendering video:', {
+        filename: file.filename,
+        url: file.url,
+        mimeType: file.mimeType,
+      });
+      
       return (
         <AspectRatio ratio={16 / 9} maxH="70vh">
           <video
             controls
             style={{ width: '100%', height: '100%', backgroundColor: '#000' }}
+            onError={(e) => {
+              console.error('❌ Video load failed:', {
+                src: file.url,
+                filename: file.filename,
+                error: e,
+              });
+            }}
+            onLoadedMetadata={() => {
+              console.log('✅ Video loaded successfully:', file.filename);
+            }}
           >
-            <source src={file.url} type={`video/${getFileType(file.filename)}`} />
+            <source src={file.url} type={file.mimeType || 'video/mp4'} />
             Your browser does not support the video tag.
           </video>
         </AspectRatio>

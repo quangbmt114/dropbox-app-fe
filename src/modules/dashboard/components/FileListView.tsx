@@ -180,7 +180,7 @@ export const FileListView: React.FC<FileListViewProps> = ({
                 {/* Upload Date */}
                 <Td>
                   <Text fontSize="sm" color="gray.600">
-                    {formatDate(file.createdAt)}
+                    {formatDate(file.uploadedAt)}
                   </Text>
                 </Td>
 
