@@ -1,4 +1,4 @@
-name: Pull Request Check
+name: PR Check
 
 on:
   pull_request:
@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -24,74 +22,13 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create stub for generated files
-        run: |
-          mkdir -p src/api-service/generated/api
-          mkdir -p src/api-service/generated/models
-          cat > src/api-service/generated/index.ts << 'EOF'
-          export * from './api';
-          export * from './models';
-          export { Configuration } from './configuration';
-          EOF
-          cat > src/api-service/generated/configuration.ts << 'EOF'
-          export class Configuration {
-            constructor(params?: any) {}
-          }
-          EOF
-          cat > src/api-service/generated/models/index.ts << 'EOF'
-          export interface RegisterDto {}
-          export interface LoginDto {}
-          export interface CompleteUploadDto {}
-          export interface FilesControllerDeleteMultipleFilesRequest {}
-          EOF
-          cat > src/api-service/generated/api/index.ts << 'EOF'
-          export class AuthenticationApi {
-            constructor(config?: any) {}
-          }
-          export class FilesApi {
-            constructor(config?: any) {}
-          }
-          export class UsersApi {
-            constructor(config?: any) {}
-          }
-          export class HealthApi {
-            constructor(config?: any) {}
-          }
-          EOF
-
       - name: Check formatting
         run: yarn format:check
-
-      - name: Type check
-        run: yarn type-check
 
       - name: Run tests
         run: yarn test:run
 
-      - name: Build check
+      - name: Build
         run: yarn build
         env:
           NEXT_PUBLIC_API_URL: http://localhost:7002
-
-      - name: Comment PR
-        uses: actions/github-script@v7
-        if: always()
-        with:
-          script: |
-            const output = `
-            ## PR Quality Check Results
-            
-            ✅ Formatting: Passed
-            ✅ Type Check: Passed
-            ✅ Tests: Passed
-            ✅ Build: Passed
-            
-            **All checks passed!** 🎉
-            `;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })

@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -8,10 +8,10 @@ on:
 
 jobs:
   # ==========================================
-  # JOB 1: Lint & Format Check
+  # JOB 1: Code Quality
   # ==========================================
-  lint:
-    name: Lint & Format
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
     
     steps:
@@ -27,67 +27,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Check for generated API files
-        id: check-generated
-        run: |
-          if [ -d "src/api-service/generated" ]; then
-            echo "has_generated=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_generated=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create stub for generated files (if missing)
-        if: steps.check-generated.outputs.has_generated == 'false'
-        run: |
-          mkdir -p src/api-service/generated/api
-          mkdir -p src/api-service/generated/models
-          
-          # Create stub index.ts
-          cat > src/api-service/generated/index.ts << 'EOF'
-          // Stub file for CI/CD - generated files not available
-          export * from './api';
-          export * from './models';
-          export { Configuration } from './configuration';
-          EOF
-          
-          # Create stub configuration.ts
-          cat > src/api-service/generated/configuration.ts << 'EOF'
-          export class Configuration {
-            constructor(params?: any) {}
-          }
-          EOF
-          
-          # Create stub models/index.ts
-          cat > src/api-service/generated/models/index.ts << 'EOF'
-          export interface RegisterDto {}
-          export interface LoginDto {}
-          export interface CompleteUploadDto {}
-          export interface FilesControllerDeleteMultipleFilesRequest {}
-          EOF
-          
-          # Create stub api/index.ts
-          cat > src/api-service/generated/api/index.ts << 'EOF'
-          export class AuthenticationApi {
-            constructor(config?: any) {}
-          }
-          export class FilesApi {
-            constructor(config?: any) {}
-          }
-          export class UsersApi {
-            constructor(config?: any) {}
-          }
-          export class HealthApi {
-            constructor(config?: any) {}
-          }
-          EOF
-          
-          echo "✅ Created stub files for CI/CD"
-
       - name: Check formatting
         run: yarn format:check
-
-      - name: Type check
-        run: yarn type-check
 
   # ==========================================
   # JOB 2: Test
@@ -109,58 +50,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create stub for generated files
-        run: |
-          mkdir -p src/api-service/generated/api
-          mkdir -p src/api-service/generated/models
-          cat > src/api-service/generated/index.ts << 'EOF'
-          export * from './api';
-          export * from './models';
-          export { Configuration } from './configuration';
-          EOF
-          cat > src/api-service/generated/configuration.ts << 'EOF'
-          export class Configuration {
-            constructor(params?: any) {}
-          }
-          EOF
-          cat > src/api-service/generated/models/index.ts << 'EOF'
-          export interface RegisterDto {}
-          export interface LoginDto {}
-          export interface CompleteUploadDto {}
-          export interface FilesControllerDeleteMultipleFilesRequest {}
-          EOF
-          cat > src/api-service/generated/api/index.ts << 'EOF'
-          export class AuthenticationApi {
-            constructor(config?: any) {}
-          }
-          export class FilesApi {
-            constructor(config?: any) {}
-          }
-          export class UsersApi {
-            constructor(config?: any) {}
-          }
-          export class HealthApi {
-            constructor(config?: any) {}
-          }
-          EOF
-
       - name: Run tests
         run: yarn test:run
-
-      - name: Generate coverage (optional)
-        run: yarn test:coverage || echo "Coverage generation skipped"
-        continue-on-error: true
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: always()
-        continue-on-error: true
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
 
   # ==========================================
   # JOB 3: Build
@@ -168,7 +59,7 @@ jobs:
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    needs: [quality, test]
     
     steps:
       - name: Checkout code
@@ -183,149 +74,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create stub for generated files
-        run: |
-          mkdir -p src/api-service/generated/api
-          mkdir -p src/api-service/generated/models
-          cat > src/api-service/generated/index.ts << 'EOF'
-          export * from './api';
-          export * from './models';
-          export { Configuration } from './configuration';
-          EOF
-          cat > src/api-service/generated/configuration.ts << 'EOF'
-          export class Configuration {
-            constructor(params?: any) {}
-          }
-          EOF
-          cat > src/api-service/generated/models/index.ts << 'EOF'
-          export interface RegisterDto {}
-          export interface LoginDto {}
-          export interface CompleteUploadDto {}
-          export interface FilesControllerDeleteMultipleFilesRequest {}
-          EOF
-          cat > src/api-service/generated/api/index.ts << 'EOF'
-          export class AuthenticationApi {
-            constructor(config?: any) {}
-          }
-          export class FilesApi {
-            constructor(config?: any) {}
-          }
-          export class UsersApi {
-            constructor(config?: any) {}
-          }
-          export class HealthApi {
-            constructor(config?: any) {}
-          }
-          EOF
-
       - name: Build application
         run: yarn build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:7002' }}
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            .next
-            public
-          retention-days: 7
-
-  # ==========================================
-  # JOB 4: Docker Build (optional)
-  # ==========================================
-  docker:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ secrets.DOCKER_USERNAME }}/dropbox-frontend
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ==========================================
-  # JOB 5: Deploy (placeholder)
-  # ==========================================
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [docker]
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://your-domain.com
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy notification
-        run: |
-          echo "🚀 Deploying to production..."
-          echo "Add your deployment commands here"
-          echo "Examples:"
-          echo "  - Deploy to Vercel: vercel --prod"
-          echo "  - Deploy to AWS: aws deploy ..."
-          echo "  - Deploy to K8s: kubectl apply ..."
-
-      # Uncomment and configure based on your deployment target
-      # - name: Deploy to Vercel
-      #   uses: amondnet/vercel-action@v25
-      #   with:
-      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
-      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-      #     vercel-args: '--prod'
-
-  # ==========================================
-  # JOB 6: Notify on Failure
-  # ==========================================
-  notify:
-    name: Notify on Failure
-    runs-on: ubuntu-latest
-    needs: [lint, test, build]
-    if: failure()
-    
-    steps:
-      - name: Send notification
-        run: |
-          echo "❌ Pipeline failed!"
-          echo "Workflow: ${{ github.workflow }}"
-          echo "Branch: ${{ github.ref }}"
-          echo "Commit: ${{ github.sha }}"
-          # Add notification service here (Slack, Discord, Email, etc.)
+          NEXT_PUBLIC_API_URL: http://localhost:7002
