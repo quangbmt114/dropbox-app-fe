@@ -1,0 +1,54 @@
+# Docker ignore file
+# Exclude unnecessary files from Docker build context
+
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Testing
+coverage
+.nyc_output
+
+# Development
+.env*.local
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+IMPROVEMENT_SUGGESTIONS.md
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# OpenAPI
+swagger.json
+src/api-service/generated/
+
+# Misc
+.editorconfig
+.prettierrc
+.prettierignore
+.eslintrc*
+vitest.config.ts

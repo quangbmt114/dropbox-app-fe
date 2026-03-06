@@ -2,10 +2,10 @@
  * Auth Store Module
  */
 
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import * as T from "./types";
-import { selectors } from "./selectors";
-import { extendActions } from "./actions";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import * as T from './types';
+import { selectors } from './selectors';
+import { extendActions } from './actions';
 
 export const initialState: T.AuthState = {
   user: null,
@@ -15,7 +15,7 @@ export const initialState: T.AuthState = {
 };
 
 const slice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     pushLoading(state) {
@@ -28,14 +28,11 @@ const slice = createSlice({
     setData(state, action: PayloadAction<T.AuthState>) {
       Object.assign(state, action.payload);
     },
-    setUser(state, action: PayloadAction<T.AuthState["user"]>) {
+    setUser(state, action: PayloadAction<T.AuthState['user']>) {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
     },
-    setAuth(
-      state,
-      action: PayloadAction<{ user: T.AuthState["user"]; token: string }>,
-    ) {
+    setAuth(state, action: PayloadAction<{ user: T.AuthState['user']; token: string }>) {
       state.user = action.payload.user;
       state.accessToken = action.payload.token;
       state.isAuthenticated = true;

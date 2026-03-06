@@ -1,6 +1,6 @@
-import { authActions } from "@/store/modules/auth";
-import { filesActions } from "@/store/modules/dashboard/files";
-import type { AppDispatch } from "@/store";
+import { authActions } from '@/store/modules/auth';
+import { filesActions } from '@/store/modules/dashboard/files';
+import type { AppDispatch } from '@/store';
 
 const init = () => {
   return async (dispatch: AppDispatch) => {
@@ -10,13 +10,13 @@ const init = () => {
         dispatch(filesActions.fetchFiles()),
       ]);
 
-      const userSuccess = userResult.status === "fulfilled";
-      const filesSuccess = filesResult.status === "fulfilled";
+      const userSuccess = userResult.status === 'fulfilled';
+      const filesSuccess = filesResult.status === 'fulfilled';
 
       if (!userSuccess || !filesSuccess) {
         return {
           success: false,
-          error: "Failed to initialize dashboard",
+          error: 'Failed to initialize dashboard',
         };
       }
 
@@ -24,10 +24,7 @@ const init = () => {
     } catch (error) {
       return {
         success: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to initialize dashboard",
+        error: error instanceof Error ? error.message : 'Failed to initialize dashboard',
       };
     }
   };

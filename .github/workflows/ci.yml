@@ -1,0 +1,119 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop, feat/*]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ==========================================
+  # JOB 1: Code Quality
+  # ==========================================
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check formatting
+        run: yarn format:check
+
+  # ==========================================
+  # JOB 2: Test
+  # ==========================================
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test:run
+
+  # ==========================================
+  # JOB 3: Build
+  # ==========================================
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create stub for generated API files
+        run: |
+          mkdir -p src/api-service/generated/api
+          mkdir -p src/api-service/generated/models
+          
+          cat > src/api-service/generated/index.ts << 'EOF'
+          export * from './api';
+          export * from './models';
+          export { Configuration } from './configuration';
+          EOF
+          
+          cat > src/api-service/generated/configuration.ts << 'EOF'
+          export class Configuration {
+            constructor(params?: any) {}
+          }
+          EOF
+          
+          cat > src/api-service/generated/models/index.ts << 'EOF'
+          export interface RegisterDto {}
+          export interface LoginDto {}
+          export interface CompleteUploadDto {}
+          export interface FilesControllerDeleteMultipleFilesRequest {}
+          EOF
+          
+          cat > src/api-service/generated/api/index.ts << 'EOF'
+          export class AuthenticationApi {
+            constructor(config?: any) {}
+          }
+          export class FilesApi {
+            constructor(config?: any) {}
+          }
+          export class UsersApi {
+            constructor(config?: any) {}
+          }
+          export class HealthApi {
+            constructor(config?: any) {}
+          }
+          EOF
+
+      - name: Build application
+        run: yarn build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:7002

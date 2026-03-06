@@ -5,7 +5,11 @@
  * Wraps the app with Chakra UI theme and configuration
  */
 
-import { ChakraProvider as ChakraUIProvider, extendTheme, type ThemeConfig } from '@chakra-ui/react';
+import {
+  ChakraProvider as ChakraUIProvider,
+  extendTheme,
+  type ThemeConfig,
+} from '@chakra-ui/react';
 
 // Theme configuration
 const config: ThemeConfig = {
@@ -46,4 +50,3 @@ const theme = extendTheme({
 export function ChakraProvider({ children }: { children: React.ReactNode }) {
   return <ChakraUIProvider theme={theme}>{children}</ChakraUIProvider>;
 }
-

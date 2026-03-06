@@ -72,12 +72,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         <HStack justify="space-between" mb={4}>
           <Heading size="lg">Profile Settings</Heading>
           {!isEditing && (
-            <Button
-              leftIcon={<FiEdit2 />}
-              colorScheme="brand"
-              variant="outline"
-              onClick={onEdit}
-            >
+            <Button leftIcon={<FiEdit2 />} colorScheme="brand" variant="outline" onClick={onEdit}>
               Edit Profile
             </Button>
           )}
@@ -89,12 +84,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             <VStack spacing={8} align="stretch">
               {/* Avatar & Basic Info */}
               <HStack spacing={6}>
-                <Avatar
-                  size="2xl"
-                  name={user?.name}
-                  bg="brand.500"
-                  color="white"
-                />
+                <Avatar size="2xl" name={user?.name} bg="brand.500" color="white" />
                 <VStack align="start" spacing={1}>
                   <Heading size="md">{user?.name}</Heading>
                   <Text color="gray.600">{user?.email}</Text>

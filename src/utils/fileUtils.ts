@@ -74,7 +74,7 @@ export function isPreviewable(filename: string): boolean {
 export function getFileType(filename: string): string {
   if (!filename) return 'file';
   const ext = getFileExtension(filename);
-  
+
   if (FILE_TYPES.IMAGE.includes(ext as any)) return 'image';
   if (FILE_TYPES.VIDEO.includes(ext as any)) return 'video';
   if (FILE_TYPES.AUDIO.includes(ext as any)) return 'audio';
@@ -84,7 +84,7 @@ export function getFileType(filename: string): string {
   if (FILE_TYPES.PRESENTATION.includes(ext as any)) return 'presentation';
   if (FILE_TYPES.ARCHIVE.includes(ext as any)) return 'archive';
   if (FILE_TYPES.CODE.includes(ext as any)) return 'code';
-  
+
   return 'file';
 }
 
@@ -93,7 +93,7 @@ export function getFileType(filename: string): string {
  */
 export function getFileIcon(filename: string): string {
   const type = getFileType(filename);
-  
+
   const iconMap: Record<string, string> = {
     image: 'FiImage',
     video: 'FiVideo',
@@ -106,7 +106,7 @@ export function getFileIcon(filename: string): string {
     code: 'FiCode',
     file: 'FiFile',
   };
-  
+
   return iconMap[type] || 'FiFile';
 }
 
@@ -115,7 +115,7 @@ export function getFileIcon(filename: string): string {
  */
 export function getFileColor(filename: string): string {
   const type = getFileType(filename);
-  
+
   const colorMap: Record<string, string> = {
     image: 'purple.500',
     video: 'red.500',
@@ -128,6 +128,6 @@ export function getFileColor(filename: string): string {
     code: 'cyan.500',
     file: 'gray.400',
   };
-  
+
   return colorMap[type] || 'gray.400';
 }

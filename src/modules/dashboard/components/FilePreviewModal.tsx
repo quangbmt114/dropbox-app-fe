@@ -33,11 +33,7 @@ interface FilePreviewModalProps {
   file: FileItem | null;
 }
 
-export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
-  isOpen,
-  onClose,
-  file,
-}) => {
+export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ isOpen, onClose, file }) => {
   if (!file) return null;
 
   const handleDownload = () => {
@@ -54,7 +50,9 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
           <VStack spacing={4}>
             <Icon as={FiFile} boxSize={16} color="gray.400" />
             <Text color="gray.500">Preview not available</Text>
-            <Text fontSize="sm" color="gray.400">No URL provided</Text>
+            <Text fontSize="sm" color="gray.400">
+              No URL provided
+            </Text>
           </VStack>
         </Center>
       );
@@ -95,7 +93,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
         url: file.url,
         mimeType: file.mimeType,
       });
-      
+
       return (
         <AspectRatio ratio={16 / 9} maxH="70vh">
           <video
@@ -153,11 +151,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
         <VStack spacing={4}>
           <Icon as={FiFile} boxSize={16} color="gray.400" />
           <Text color="gray.500">Preview not available for this file type</Text>
-          <Button
-            leftIcon={<FiDownload />}
-            colorScheme="brand"
-            onClick={handleDownload}
-          >
+          <Button leftIcon={<FiDownload />} colorScheme="brand" onClick={handleDownload}>
             Download to view
           </Button>
         </VStack>
@@ -166,13 +160,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="6xl"
-      scrollBehavior="inside"
-      isCentered
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="6xl" scrollBehavior="inside" isCentered>
       <ModalOverlay bg="blackAlpha.800" backdropFilter="blur(4px)" />
       <ModalContent maxW="90vw" maxH="90vh" bg="white">
         <ModalHeader>
@@ -194,11 +182,7 @@ export const FilePreviewModal: React.FC<FilePreviewModalProps> = ({
 
           {/* Action Buttons */}
           <HStack justify="center" pt={6} spacing={3}>
-            <Button
-              leftIcon={<FiDownload />}
-              colorScheme="brand"
-              onClick={handleDownload}
-            >
+            <Button leftIcon={<FiDownload />} colorScheme="brand" onClick={handleDownload}>
               Download
             </Button>
             <Button
@@ -221,5 +205,5 @@ function formatFileSize(bytes: number): string {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }

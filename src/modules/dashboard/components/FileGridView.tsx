@@ -84,7 +84,6 @@ export const FileGridView: React.FC<FileGridViewProps> = ({
     onOpen();
   };
 
-
   if (isLoading) {
     return (
       <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
@@ -149,7 +148,7 @@ export const FileGridView: React.FC<FileGridViewProps> = ({
                         console.error('❌ Image load failed:', {
                           src: e.currentTarget.src,
                           filename: file.filename,
-                          fileId: file.id
+                          fileId: file.id,
                         });
                       }}
                       fallback={
@@ -200,12 +199,7 @@ export const FileGridView: React.FC<FileGridViewProps> = ({
             <VStack align="stretch" p={4} spacing={2}>
               <HStack justify="space-between" align="start">
                 <VStack align="start" spacing={0} flex={1} overflow="hidden">
-                  <Text
-                    fontWeight="semibold"
-                    fontSize="sm"
-                    noOfLines={1}
-                    title={file.filename}
-                  >
+                  <Text fontWeight="semibold" fontSize="sm" noOfLines={1} title={file.filename}>
                     {file.filename}
                   </Text>
                   <Text fontSize="xs" color="gray.500">
@@ -266,11 +260,7 @@ export const FileGridView: React.FC<FileGridViewProps> = ({
       </SimpleGrid>
 
       {/* Preview Modal */}
-      <FilePreviewModal
-        isOpen={isOpen}
-        onClose={onClose}
-        file={selectedFile}
-      />
+      <FilePreviewModal isOpen={isOpen} onClose={onClose} file={selectedFile} />
     </>
   );
 };

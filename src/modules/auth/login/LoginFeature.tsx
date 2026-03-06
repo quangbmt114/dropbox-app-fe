@@ -73,21 +73,19 @@ export const LoginFeature = () => {
     },
   });
 
-  const onSubmit = (
-    async (data: LoginFormData) => {
-      const result = await dispatch(authActions.login(data.email, data.password));
+  const onSubmit = async (data: LoginFormData) => {
+    const result = await dispatch(authActions.login(data.email, data.password));
 
-      if (!result.success) {
-        setError('root', {
-          type: 'manual',
-          message: result.error || 'Login failed',
-        });
-        return;
-      }
-
-      router.push('/dashboard');
+    if (!result.success) {
+      setError('root', {
+        type: 'manual',
+        message: result.error || 'Login failed',
+      });
+      return;
     }
-  );
+
+    router.push('/dashboard');
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -96,18 +94,19 @@ export const LoginFeature = () => {
   }, []);
 
   return (
-    <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" py={12}>
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      py={12}
+    >
       <Container maxW="md">
         <VStack spacing={8} align="stretch">
           {/* Logo/Brand */}
           <Box textAlign="center">
-            <Heading
-              as="h1"
-              size="2xl"
-              color="brand.500"
-              fontWeight="bold"
-              mb={2}
-            >
+            <Heading as="h1" size="2xl" color="brand.500" fontWeight="bold" mb={2}>
               Dropbox
             </Heading>
             <Text color="gray.600" fontSize="lg">
@@ -118,8 +117,7 @@ export const LoginFeature = () => {
           {/* Login Card */}
           <Card shadow="lg" borderRadius="xl">
             <CardBody p={8}>
-              <Box
-              >
+              <Box>
                 <VStack spacing={5} align="stretch">
                   {/* Email Field */}
                   <FormControl isRequired isInvalid={!!errors.email}>

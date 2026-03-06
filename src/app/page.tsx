@@ -48,20 +48,10 @@ export default function Home() {
   return (
     <Box>
       {/* Hero Section */}
-      <Box
-        bgGradient="linear(to-br, brand.500, brand.700)"
-        color="white"
-        py={{ base: 20, md: 32 }}
-      >
+      <Box bgGradient="linear(to-br, brand.500, brand.700)" color="white" py={{ base: 20, md: 32 }}>
         <Container maxW="container.xl">
           <VStack spacing={6} textAlign="center" maxW="3xl" mx="auto" alignItems="center">
-            <Badge
-              colorScheme="whiteAlpha"
-              fontSize="sm"
-              px={3}
-              py={1}
-              borderRadius="full"
-            >
+            <Badge colorScheme="whiteAlpha" fontSize="sm" px={3} py={1} borderRadius="full">
               Modern File Storage
             </Badge>
             <Heading
@@ -73,14 +63,10 @@ export default function Home() {
               Your files, anywhere you go
             </Heading>
             <Text fontSize={{ base: 'lg', md: 'xl' }} opacity={0.9} maxW="2xl">
-              Store, share, and collaborate on your files from any device.
-              Simple, secure, and reliable cloud storage.
+              Store, share, and collaborate on your files from any device. Simple, secure, and
+              reliable cloud storage.
             </Text>
-            <Stack
-              direction={{ base: 'column', sm: 'row' }}
-              spacing={4}
-              pt={4}
-            >
+            <Stack direction={{ base: 'column', sm: 'row' }} spacing={4} pt={4}>
               <Button
                 as={Link}
                 href="/register"
@@ -126,11 +112,7 @@ export default function Home() {
               </Text>
             </VStack>
 
-            <SimpleGrid
-              columns={{ base: 1, md: 2, lg: 4 }}
-              spacing={8}
-              w="full"
-            >
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8} w="full">
               {features.map((feature, index) => (
                 <VStack
                   key={index}
@@ -143,12 +125,7 @@ export default function Home() {
                   transition="all 0.2s"
                   _hover={{ boxShadow: 'md', transform: 'translateY(-4px)' }}
                 >
-                  <Box
-                    bg="brand.50"
-                    p={3}
-                    borderRadius="lg"
-                    color="brand.500"
-                  >
+                  <Box bg="brand.50" p={3} borderRadius="lg" color="brand.500">
                     <Icon as={feature.icon} boxSize={6} />
                   </Box>
                   <Heading size="md">{feature.title}</Heading>

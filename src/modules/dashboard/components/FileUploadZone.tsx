@@ -48,13 +48,16 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
         console.log('📁 [FileUploadZone] Files dropped:', acceptedFiles.length);
-        
+
         addFiles(acceptedFiles, (uploadId, success) => {
-          console.log(`${success ? '✅' : '❌'} [FileUploadZone] Upload ${success ? 'completed' : 'failed'}:`, uploadId);
-          
+          console.log(
+            `${success ? '✅' : '❌'} [FileUploadZone] Upload ${success ? 'completed' : 'failed'}:`,
+            uploadId
+          );
+
           // Notify parent
           onUploadComplete?.(success);
-          
+
           // Refresh files list after successful upload
           if (success && onRefreshFiles) {
             setTimeout(() => {
@@ -74,7 +77,9 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 
   const completedCount = uploads.filter((u) => u.status === 'completed').length;
   const errorCount = uploads.filter((u) => u.status === 'error').length;
-  const activeCount = uploads.filter((u) => u.status === 'uploading' || u.status === 'paused').length;
+  const activeCount = uploads.filter(
+    (u) => u.status === 'uploading' || u.status === 'paused'
+  ).length;
 
   return (
     <VStack spacing={4} align="stretch" {...boxProps}>
@@ -103,9 +108,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
           />
           <VStack spacing={1}>
             <Text fontSize={hasUploads ? 'md' : 'lg'} fontWeight="semibold" color="gray.700">
-              {isDragActive
-                ? 'Drop files here'
-                : 'Drop files to upload'}
+              {isDragActive ? 'Drop files here' : 'Drop files to upload'}
             </Text>
             <Text fontSize="sm" color="gray.500">
               or click to browse
@@ -146,12 +149,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
             </HStack>
 
             {completedCount > 0 && (
-              <Button
-                size="xs"
-                variant="ghost"
-                colorScheme="gray"
-                onClick={clearCompleted}
-              >
+              <Button size="xs" variant="ghost" colorScheme="gray" onClick={clearCompleted}>
                 Clear completed
               </Button>
             )}
@@ -174,12 +172,17 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                   onPause={upload.useChunking ? () => pauseUpload(upload.id) : undefined}
                   onResume={upload.useChunking ? () => resumeUpload(upload.id) : undefined}
                   onCancel={() => cancelUpload(upload.id)}
-                  onRetry={upload.status === 'error' ? () => retryUpload(upload.id, (id, success) => {
-                    onUploadComplete?.(success);
-                    if (success && onRefreshFiles) {
-                      setTimeout(() => onRefreshFiles(), 500);
-                    }
-                  }) : undefined}
+                  onRetry={
+                    upload.status === 'error'
+                      ? () =>
+                          retryUpload(upload.id, (id, success) => {
+                            onUploadComplete?.(success);
+                            if (success && onRefreshFiles) {
+                              setTimeout(() => onRefreshFiles(), 500);
+                            }
+                          })
+                      : undefined
+                  }
                 />
               ))}
           </VStack>
@@ -188,4 +191,3 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     </VStack>
   );
 };
-

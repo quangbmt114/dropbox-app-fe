@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: dropbox-frontend
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://backend:7002}
+      - NEXT_PUBLIC_CLIENT_PORT=4000
+    depends_on:
+      - backend
+    networks:
+      - dropbox-network
+    restart: unless-stopped
+
+  backend:
+    image: your-backend-image:latest
+    container_name: dropbox-backend
+    ports:
+      - "7002:7002"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - dropbox-network
+    restart: unless-stopped
+
+networks:
+  dropbox-network:
+    driver: bridge
