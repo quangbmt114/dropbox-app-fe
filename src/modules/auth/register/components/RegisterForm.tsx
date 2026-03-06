@@ -2,7 +2,8 @@
 
 /**
  * Register Form Component
- * Dropbox-inspired registration form with Chakra UI and react-hook-form
+ * Modern registration form with Chakra UI and react-hook-form
+ * Validation handled by Yup in parent component
  */
 
 import { FormEvent } from 'react';
@@ -23,8 +24,13 @@ import {
   Link,
   Card,
   CardBody,
+  InputGroup,
+  InputRightElement,
+  IconButton,
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useState } from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 interface RegisterFormData {
   name: string;
@@ -38,7 +44,6 @@ interface RegisterFormProps {
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   errors: FieldErrors<RegisterFormData>;
   isLoading: boolean;
-  password: string;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
@@ -46,8 +51,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   handleSubmit,
   errors,
   isLoading,
-  password,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" py={12}>
       <Container maxW="md">
@@ -79,13 +86,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                       Full Name
                     </FormLabel>
                     <Input
-                      {...register('name', {
-                        required: 'Name is required',
-                        minLength: {
-                          value: 2,
-                          message: 'Name must be at least 2 characters',
-                        },
-                      })}
+                      {...register('name')}
+                      type="text"
                       placeholder="John Doe"
                       size="lg"
                       bg="white"
@@ -105,13 +107,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                       Email
                     </FormLabel>
                     <Input
-                      {...register('email', {
-                        required: 'Email is required',
-                        pattern: {
-                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: 'Invalid email address',
-                        },
-                      })}
+                      {...register('email')}
                       type="email"
                       placeholder="name@example.com"
                       size="lg"
@@ -131,31 +127,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     <FormLabel fontWeight="medium" color="gray.700">
                       Password
                     </FormLabel>
-                    <Input
-                      {...register('password', {
-                        required: 'Password is required',
-                        minLength: {
-                          value: 6,
-                          message: 'Password must be at least 6 characters',
-                        },
-                      })}
-                      type="password"
-                      placeholder="Create a strong password"
-                      size="lg"
-                      bg="white"
-                      borderColor="gray.300"
-                      _hover={{ borderColor: 'gray.400' }}
-                      _focus={{
-                        borderColor: 'brand.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                      }}
-                    />
+                    <InputGroup size="lg">
+                      <Input
+                        {...register('password')}
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Create a strong password"
+                        bg="white"
+                        borderColor="gray.300"
+                        _hover={{ borderColor: 'gray.400' }}
+                        _focus={{
+                          borderColor: 'brand.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowPassword(!showPassword)}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
                     <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-                    {!errors.password && (
-                      <Text fontSize="sm" color="gray.500" mt={2}>
-                        Use at least 6 characters
-                      </Text>
-                    )}
                   </FormControl>
 
                   {/* Confirm Password Field */}
@@ -163,23 +158,29 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     <FormLabel fontWeight="medium" color="gray.700">
                       Confirm Password
                     </FormLabel>
-                    <Input
-                      {...register('confirmPassword', {
-                        required: 'Please confirm your password',
-                        validate: (value) =>
-                          value === password || 'Passwords do not match',
-                      })}
-                      type="password"
-                      placeholder="Confirm your password"
-                      size="lg"
-                      bg="white"
-                      borderColor="gray.300"
-                      _hover={{ borderColor: 'gray.400' }}
-                      _focus={{
-                        borderColor: 'brand.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                      }}
-                    />
+                    <InputGroup size="lg">
+                      <Input
+                        {...register('confirmPassword')}
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        bg="white"
+                        borderColor="gray.300"
+                        _hover={{ borderColor: 'gray.400' }}
+                        _focus={{
+                          borderColor: 'brand.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                        }}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                          icon={showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
                     <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
                   </FormControl>
 
@@ -203,13 +204,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                     w="full"
                     mt={2}
                   >
-                    Create account
+                    Create Account
                   </Button>
-
-                  {/* Terms */}
-                  <Text fontSize="xs" color="gray.500" textAlign="center">
-                    By creating an account, you agree to our Terms of Service
-                  </Text>
                 </VStack>
               </form>
             </CardBody>
