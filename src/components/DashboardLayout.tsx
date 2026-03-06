@@ -156,11 +156,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           py={3}
         >
           <HStack justify="space-between">
-            <IconButton
-              aria-label="Menu"
-              icon={<FiMenu />}
-              variant="ghost"
-            />
+            <IconButton aria-label="Menu" icon={<FiMenu />} variant="ghost" />
             <Heading size="md" color="brand.500">
               Dropbox
             </Heading>
@@ -186,4 +182,3 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     </Flex>
   );
 };
-

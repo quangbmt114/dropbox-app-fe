@@ -1,18 +1,12 @@
 /**
  * API Client - Type-safe wrapper for generated OpenAPI client
  * Auto-generated from backend Swagger/OpenAPI spec
- * 
+ *
  * To update when backend changes:
  * npm run update:api
  */
 
-import { 
-  Configuration, 
-  AuthenticationApi,
-  FilesApi,
-  UsersApi,
-  HealthApi
-} from '../generated';
+import { Configuration, AuthenticationApi, FilesApi, UsersApi, HealthApi } from '../generated';
 import { getTokenFromStore } from '@/store/getToken';
 
 // Get base URL from environment
@@ -83,7 +77,7 @@ export type { Configuration } from '../generated';
  */
 export const refreshGeneratedApiConfig = () => {
   const newConfig = createConfiguration();
-  
+
   // Update instances
   Object.assign(generatedAuthApi, new AuthenticationApi(newConfig));
   Object.assign(generatedFilesApi, new FilesApi(newConfig));
@@ -105,7 +99,7 @@ export const updateGeneratedBaseUrl = (newBaseUrl: string) => {
       return '';
     },
   });
-  
+
   Object.assign(generatedAuthApi, new AuthenticationApi(newConfig));
   Object.assign(generatedFilesApi, new FilesApi(newConfig));
   Object.assign(generatedUsersApi, new UsersApi(newConfig));

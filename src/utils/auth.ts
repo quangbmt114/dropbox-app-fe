@@ -12,7 +12,7 @@ import { store } from '@/store';
  */
 export function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
-  
+
   const state = store.getState();
   return state.auth.isAuthenticated && !!state.auth.accessToken;
 }
@@ -23,7 +23,7 @@ export function isAuthenticated(): boolean {
  */
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  
+
   const state = store.getState();
   return state.auth.accessToken;
 }

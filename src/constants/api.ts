@@ -18,7 +18,7 @@ export const FILES_ENDPOINTS = {
   DELETE: (fileId: string) => `/files/${fileId}`,
   DOWNLOAD: (fileId: string) => `/files/download/${fileId}`,
   VIEW: (fileId: string) => `/files/view/${fileId}`,
-  
+
   // Chunked upload endpoints (requires backend implementation)
   UPLOAD_CHUNK: '/files/upload/chunk',
   UPLOAD_COMPLETE: '/files/upload/complete',
@@ -50,12 +50,9 @@ export const BACKEND_SUPPORT = {
     AUTH_ENDPOINTS.LOGIN,
     AUTH_ENDPOINTS.REGISTER,
   ],
-  
+
   // ⚠️ Not implemented yet (chunking endpoints)
-  NOT_IMPLEMENTED: [
-    FILES_ENDPOINTS.UPLOAD_CHUNK,
-    FILES_ENDPOINTS.UPLOAD_COMPLETE,
-  ],
+  NOT_IMPLEMENTED: [FILES_ENDPOINTS.UPLOAD_CHUNK, FILES_ENDPOINTS.UPLOAD_COMPLETE],
 } as const;
 
 // Export all

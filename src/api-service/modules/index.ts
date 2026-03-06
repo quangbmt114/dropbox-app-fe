@@ -1,15 +1,15 @@
 /**
  * Unified API Client
  * Combines manual API utilities with generated type-safe client
- * 
+ *
  * Usage:
  * - Use `api` for standard operations (uses generated types)
  * - Helper functions (getFileUrl, mapBackendFile) still available
  */
 
-import { 
-  generatedAuthApi, 
-  generatedFilesApi, 
+import {
+  generatedAuthApi,
+  generatedFilesApi,
   generatedUsersApi,
   generatedHealthApi,
   refreshGeneratedApiConfig,
@@ -87,9 +87,7 @@ export const getFileUrl = (file: FileItem): string => {
   // If backend provides path, construct URL
   if (file.path) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7002';
-    const url = file.path.startsWith('/')
-      ? `${apiUrl}${file.path}`
-      : `${apiUrl}/${file.path}`;
+    const url = file.path.startsWith('/') ? `${apiUrl}${file.path}` : `${apiUrl}/${file.path}`;
     return url;
   }
 
@@ -304,14 +302,14 @@ export const api = {
 /**
  * @deprecated Legacy authApi and filesApi have been removed.
  * Use unified `api` object instead:
- * 
+ *
  * Migration guide:
  * OLD: import { authApi, filesApi } from '@/api-service'
  * NEW: import { api } from '@/api-service'
- * 
+ *
  * OLD: await authApi.login({ email, password })
  * NEW: await api.auth.login(email, password)
- * 
+ *
  * OLD: await filesApi.upload(file)
  * NEW: await api.files.upload(file)
  */
@@ -320,11 +318,7 @@ export const api = {
 // TYPE EXPORTS
 // ==========================================
 
-export type {
-  RegisterDto,
-  LoginDto,
-  CompleteUploadDto,
-} from './generated-client';
+export type { RegisterDto, LoginDto, CompleteUploadDto } from './generated-client';
 
 export type { ApiResponse } from '../client';
 

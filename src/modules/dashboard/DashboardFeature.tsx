@@ -119,10 +119,7 @@ export const DashboardFeature = () => {
   }, []);
 
   return (
-    <DashboardLayout
-      userEmail={user?.email || ''}
-      onLogout={handleLogout}
-    >
+    <DashboardLayout userEmail={user?.email || ''} onLogout={handleLogout}>
       <Box>
         {/* Header */}
         <HStack justify="space-between" mb={6}>

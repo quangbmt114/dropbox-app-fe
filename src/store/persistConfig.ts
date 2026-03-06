@@ -1,6 +1,6 @@
 /**
  * Redux Persist Configuration
- * 
+ *
  * Configure what data should be persisted to localStorage
  */
 
@@ -15,13 +15,13 @@ export const persistConfig: PersistConfig<RootState> = {
   key: 'dropbox-root',
   version: 1,
   storage,
-  
+
   // Whitelist: Only persist these reducers
   whitelist: ['auth'], // Persist auth state (user info, token info)
-  
+
   // Blacklist: Never persist these reducers
   // blacklist: ['dashboard'], // Don't persist files (always fetch fresh)
-  
+
   // Debug mode (enable in development)
   debug: process.env.NODE_ENV === 'development',
 };
@@ -33,10 +33,10 @@ export const persistConfig: PersistConfig<RootState> = {
 export const authPersistConfig = {
   key: 'auth',
   storage,
-  
+
   // Persist user, token, and auth status
   whitelist: ['user', 'accessToken', 'isAuthenticated'],
-  
+
   // Don't persist loading states
   blacklist: ['loadingCount'],
 };
@@ -48,13 +48,13 @@ export const authPersistConfig = {
 export const filesPersistConfig = {
   key: 'files',
   storage,
-  
+
   // Cache files list for quick initial render
   whitelist: ['items'],
-  
+
   // Don't persist loading/uploading states
   blacklist: ['loadingCount', 'uploadingFileId', 'deletingFileId'],
-  
+
   // Expire cache after 5 minutes
   timeout: 5 * 60 * 1000,
 };
@@ -65,10 +65,10 @@ export const filesPersistConfig = {
 export const storageConfig = {
   // Use localStorage (default)
   storage,
-  
+
   // Or use sessionStorage for temporary persistence
   // storage: createWebStorage('session'),
-  
+
   // Or use custom storage adapter
   // storage: customStorageAdapter,
 };
@@ -84,7 +84,7 @@ export const migrations = {
       // Add any migration logic here
     };
   },
-  
+
   // Migration for version 2 (future)
   // 2: (state: any) => {
   //   return {
@@ -107,7 +107,7 @@ export const transforms = {
     }
     return inboundState;
   },
-  
+
   // Transform: Reset loading states after rehydrating
   enhanceAfterRehydrate: (outboundState: any, key: string) => {
     if (key === 'auth') {
@@ -120,4 +120,3 @@ export const transforms = {
     return outboundState;
   },
 };
-

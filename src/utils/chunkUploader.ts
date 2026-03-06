@@ -103,7 +103,9 @@ export class ChunkUploader {
    */
   setToken(token: string): void {
     this.token = token;
-    console.warn('[ChunkUploader] setToken() is deprecated. Token is auto-injected from Redux store.');
+    console.warn(
+      '[ChunkUploader] setToken() is deprecated. Token is auto-injected from Redux store.'
+    );
   }
 
   /**
@@ -174,7 +176,7 @@ export class ChunkUploader {
   private async uploadChunksParallel(): Promise<void> {
     // Get pending chunks
     const pendingChunks = filter(this.chunks, (c) => !c.uploaded);
-    
+
     // Split into batches using lodash chunk
     const batches = chunk(pendingChunks, this.options.parallelUploads);
 
@@ -190,9 +192,7 @@ export class ChunkUploader {
       }
 
       // Upload batch in parallel
-      await Promise.all(
-        map(batch, (c) => this.uploadChunkWithRetry(c))
-      );
+      await Promise.all(map(batch, (c) => this.uploadChunkWithRetry(c)));
     }
   }
 
@@ -215,7 +215,9 @@ export class ChunkUploader {
 
         if (chunk.retries >= this.options.maxRetries) {
           this.options.onChunkError(chunk.chunkIndex, error as Error);
-          throw new Error(`Chunk ${chunk.chunkIndex} failed after ${this.options.maxRetries} retries`);
+          throw new Error(
+            `Chunk ${chunk.chunkIndex} failed after ${this.options.maxRetries} retries`
+          );
         }
 
         // Wait before retry (exponential backoff)

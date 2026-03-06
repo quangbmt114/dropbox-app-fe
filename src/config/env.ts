@@ -71,16 +71,14 @@ export type Environment = typeof env;
 
 // Validate required environment variables
 export function validateEnv() {
-  const required = [
-    'NEXT_PUBLIC_API_URL',
-  ];
+  const required = ['NEXT_PUBLIC_API_URL'];
 
-  const missing = required.filter(key => !process.env[key]);
+  const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}\n` +
-      'Please copy .env.example to .env.local and fill in the values.'
+        'Please copy .env.example to .env.local and fill in the values.'
     );
   }
 }
@@ -96,4 +94,3 @@ if (env.isDevelopment() && env.app.debugMode) {
 }
 
 export default env;
-

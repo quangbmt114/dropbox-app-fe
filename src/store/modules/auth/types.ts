@@ -12,4 +12,3 @@ export interface AuthState {
   isAuthenticated: boolean;
   loadingCount: number;
 }
-

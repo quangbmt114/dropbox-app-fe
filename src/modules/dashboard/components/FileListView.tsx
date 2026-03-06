@@ -118,12 +118,7 @@ export const FileListView: React.FC<FileListViewProps> = ({
 
   return (
     <>
-      <Box
-        bg="white"
-        borderRadius="xl"
-        overflow="hidden"
-        boxShadow="sm"
-      >
+      <Box bg="white" borderRadius="xl" overflow="hidden" boxShadow="sm">
         <Table variant="simple">
           <Thead bg="gray.50">
             <Tr>
@@ -153,12 +148,7 @@ export const FileListView: React.FC<FileListViewProps> = ({
                       color={`${getFileColor(file.filename)}.600`}
                     />
                     <VStack align="start" spacing={0}>
-                      <Text
-                        fontWeight="medium"
-                        fontSize="sm"
-                        noOfLines={1}
-                        title={file.filename}
-                      >
+                      <Text fontWeight="medium" fontSize="sm" noOfLines={1} title={file.filename}>
                         {file.filename}
                       </Text>
                       {isPreviewable(file.filename) && (
@@ -236,11 +226,7 @@ export const FileListView: React.FC<FileListViewProps> = ({
       </Box>
 
       {/* Preview Modal */}
-      <FilePreviewModal
-        isOpen={isOpen}
-        onClose={onClose}
-        file={selectedFile}
-      />
+      <FilePreviewModal isOpen={isOpen} onClose={onClose} file={selectedFile} />
     </>
   );
 };

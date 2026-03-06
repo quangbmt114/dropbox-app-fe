@@ -2,9 +2,9 @@
  * Files Store Actions
  */
 
-import { actions as A } from ".";
-import { api } from "@/api-service";
-import type { AppDispatch } from "@/store";
+import { actions as A } from '.';
+import { api } from '@/api-service';
+import type { AppDispatch } from '@/store';
 
 const init = () => {
   return async (dispatch: AppDispatch) => {
@@ -12,7 +12,7 @@ const init = () => {
       dispatch(A.pushLoading());
       await dispatch(fetchFiles());
     } catch (error) {
-      console.error("Failed to initialize files", error);
+      console.error('Failed to initialize files', error);
     } finally {
       dispatch(A.popLoading());
     }
@@ -25,7 +25,7 @@ const fetchFiles = () => {
       dispatch(A.pushLoading());
 
       const response = await api.files.getAll();
-      
+
       console.log('🔍 [fetchFiles] API Response:', {
         status: response.status,
         filesCount: Array.isArray(response.data) ? response.data.length : 0,
@@ -42,7 +42,7 @@ const fetchFiles = () => {
       console.error('❌ [fetchFiles] Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to fetch files",
+        error: error instanceof Error ? error.message : 'Failed to fetch files',
       };
     } finally {
       dispatch(A.popLoading());
@@ -63,7 +63,7 @@ const uploadFile = (file: File) => {
       });
 
       const response = await api.files.upload(file);
-      
+
       console.log('✅ [uploadFile] Upload response:', response);
 
       await dispatch(fetchFiles());
@@ -73,7 +73,7 @@ const uploadFile = (file: File) => {
       console.error('❌ [uploadFile] Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to upload file",
+        error: error instanceof Error ? error.message : 'Failed to upload file',
       };
     } finally {
       dispatch(A.setUploadingFileId(null));
@@ -94,7 +94,7 @@ const deleteFile = (fileId: string) => {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to delete file",
+        error: error instanceof Error ? error.message : 'Failed to delete file',
       };
     } finally {
       dispatch(A.setDeletingFileId(null));

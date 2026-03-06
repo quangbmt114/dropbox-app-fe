@@ -47,4 +47,3 @@ export const { actions } = slice;
 export const filesReducer = slice.reducer;
 export const filesSelectors = selectors;
 export const filesActions = { ...actions, ...extendActions };
-

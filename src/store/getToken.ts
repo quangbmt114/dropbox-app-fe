@@ -1,7 +1,7 @@
 /**
  * Get Token from Redux Store
  * Helper function to access token from Redux store in API client
- * 
+ *
  * This file uses a different approach to avoid circular dependency:
  * Instead of importing store directly, we provide a setter function
  * that will be called after store is initialized.
@@ -26,7 +26,7 @@ export function getTokenFromStore(): string | null {
     console.warn('Store not initialized yet');
     return null;
   }
-  
+
   try {
     const state = storeInstance.getState();
     return state.auth.accessToken;

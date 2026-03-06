@@ -3,9 +3,9 @@
  * Now using Redux persist to handle tokens instead of localStorage
  */
 
-import { actions as A } from ".";
-import { api, type RegisterRequest } from "@/api-service";
-import type { AppDispatch } from "@/store";
+import { actions as A } from '.';
+import { api, type RegisterRequest } from '@/api-service';
+import type { AppDispatch } from '@/store';
 
 /**
  * Initialize Auth
@@ -19,8 +19,7 @@ const initAuth = () => {
     } catch (error) {
       return {
         success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to initialize auth",
+        error: error instanceof Error ? error.message : 'Failed to initialize auth',
       };
     }
   };
@@ -43,17 +42,17 @@ const login = (email: string, password: string) => {
           A.setAuth({
             user,
             token,
-          }),
+          })
         );
 
         return { success: true };
       }
 
-      return { success: false, error: "No token or user received" };
+      return { success: false, error: 'No token or user received' };
     } catch (error: any) {
       return {
         success: false,
-        error: error?.response?.data?.message || error.message || "Login failed",
+        error: error?.response?.data?.message || error.message || 'Login failed',
       };
     } finally {
       dispatch(A.popLoading());
@@ -79,17 +78,17 @@ const register = (data: RegisterRequest) => {
           A.setAuth({
             user,
             token,
-          }),
+          })
         );
 
         return { success: true };
       }
 
-      return { success: false, error: "No token or user received" };
+      return { success: false, error: 'No token or user received' };
     } catch (error: any) {
       return {
         success: false,
-        error: error?.response?.data?.message || error.message || "Registration failed",
+        error: error?.response?.data?.message || error.message || 'Registration failed',
       };
     } finally {
       dispatch(A.popLoading());
@@ -118,7 +117,7 @@ const fetchCurrentUser = () => {
         dispatch(A.setUser(user));
       }
     } catch (error) {
-      console.error("Failed to fetch user", error);
+      console.error('Failed to fetch user', error);
     } finally {
       dispatch(A.popLoading());
     }

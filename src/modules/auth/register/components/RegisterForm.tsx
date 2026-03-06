@@ -56,18 +56,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center" py={12}>
+    <Box
+      minH="100vh"
+      bg="gray.50"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      py={12}
+    >
       <Container maxW="md">
         <VStack spacing={8} align="stretch">
           {/* Logo/Brand */}
           <Box textAlign="center">
-            <Heading
-              as="h1"
-              size="2xl"
-              color="brand.500"
-              fontWeight="bold"
-              mb={2}
-            >
+            <Heading as="h1" size="2xl" color="brand.500" fontWeight="bold" mb={2}>
               Dropbox
             </Heading>
             <Text color="gray.600" fontSize="lg">

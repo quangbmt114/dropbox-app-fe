@@ -1,6 +1,6 @@
 /**
  * API Client - Singleton Pattern with Axios
- * 
+ *
  * Centralized API client for all HTTP requests
  * Uses axios with automatic token injection from Redux store
  */
@@ -79,9 +79,7 @@ class ApiClient {
   /**
    * Generic request handler
    */
-  private async request<T = any>(
-    config: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  private async request<T = any>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
     try {
       const response: AxiosResponse<T> = await this.axiosInstance.request(config);
       return {
@@ -114,10 +112,7 @@ class ApiClient {
   /**
    * GET request
    */
-  public async get<T = any>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  public async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'GET', url });
   }
 
@@ -146,10 +141,7 @@ class ApiClient {
   /**
    * DELETE request
    */
-  public async delete<T = any>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> {
+  public async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'DELETE', url });
   }
 

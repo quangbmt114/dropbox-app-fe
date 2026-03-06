@@ -10,4 +10,3 @@ export interface FilesState {
   uploadingFileId: string | null;
   deletingFileId: string | null;
 }
-

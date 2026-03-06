@@ -9,25 +9,13 @@ const selectRoot = (state: RootState) => state.dashboard.files;
 
 const selectFiles = createSelector([selectRoot], (state) => state.items);
 
-const selectIsLoading = createSelector(
-  [selectRoot],
-  (state) => state.loadingCount > 0
-);
+const selectIsLoading = createSelector([selectRoot], (state) => state.loadingCount > 0);
 
-const selectIsUploading = createSelector(
-  [selectRoot],
-  (state) => state.uploadingFileId !== null
-);
+const selectIsUploading = createSelector([selectRoot], (state) => state.uploadingFileId !== null);
 
-const selectDeletingFileId = createSelector(
-  [selectRoot],
-  (state) => state.deletingFileId
-);
+const selectDeletingFileId = createSelector([selectRoot], (state) => state.deletingFileId);
 
-const selectFilesCount = createSelector(
-  [selectFiles],
-  (files) => files.length
-);
+const selectFilesCount = createSelector([selectFiles], (files) => files.length);
 
 export const selectors = {
   selectFiles,
@@ -36,4 +24,3 @@ export const selectors = {
   selectDeletingFileId,
   selectFilesCount,
 };
-
