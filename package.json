@@ -16,7 +16,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "download:schema": "curl http://localhost:7002/api-json > swagger.json",
-    "generate:api": "openapi-generator-cli generate -i swagger.json -g typescript-axios -o src/api-service/generated --additional-properties=supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
+    "generate:api": "PATH=\"/opt/homebrew/opt/openjdk@17/bin:$PATH\" openapi-generator-cli generate -i swagger.json -g typescript-axios -o src/api-service/generated --additional-properties=supportsES6=true,withSeparateModelsAndApi=true,apiPackage=api,modelPackage=models",
     "update:api": "yarn download:schema && yarn generate:api",
     "clean:api": "rm -rf src/api-service/generated swagger.json",
     "prepare": "husky"
@@ -63,6 +63,7 @@
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "lint-staged": "^16.3.2",
+    "openapi-typescript-codegen": "^0.30.0",
     "prettier": "^3.8.1",
     "typescript": "^5.3.3",
     "vitest": "^4.0.18"
